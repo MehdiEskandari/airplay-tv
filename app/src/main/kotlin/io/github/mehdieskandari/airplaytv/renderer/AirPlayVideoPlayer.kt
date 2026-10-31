@@ -17,6 +17,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import io.github.mehdieskandari.airplaytv.Prefs
+import io.github.mehdieskandari.airplaytv.get
 
 // rate is 0 while buffering; speed is the configured rate regardless of pause state
 // native reads the effective rate, overlay reads playWhenReady + speed + skipSilence
@@ -43,6 +45,38 @@ class AirPlayVideoPlayer(private val context: Context) {
     // current subtitle line(s), empty when none is on screen
     private val _subtitle = MutableStateFlow("")
     val subtitle: StateFlow<String> = _subtitle.asStateFlow()
+
+    // sidecar subtitles are timed here (not by exoplayer) so the delay setting applies instantly
+    private var sidecarCues: List<SidecarSubtitles.Cue> = emptyList()
+    private val prefs = context.getSharedPreferences(Prefs.NAME, Context.MODE_PRIVATE)
+    private val _subtitleTick = object : Runnable {
+        override fun run() {
+            val p = player ?: return
+            val pos = p.currentPosition - prefs[Prefs.SUB_DELAY_MS]
+            _subtitle.value = activeCueText(pos)
+            mainHandler.postDelayed(this, SUBTITLE_TICK_MS)
+        }
+    }
+
+    private fun activeCueText(posMs: Long): String {
+        val cues = sidecarCues
+        if (cues.isEmpty()) return ""
+        // last cue starting at or before pos, then walk back over overlapping ones
+        var lo = 0; var hi = cues.size - 1; var idx = -1
+        while (lo <= hi) {
+            val mid = (lo + hi) ushr 1
+            if (cues[mid].startMs <= posMs) { idx = mid; lo = mid + 1 } else hi = mid - 1
+        }
+        if (idx < 0) return ""
+        val active = ArrayList<String>(2)
+        var i = idx
+        while (i >= 0 && idx - i < 8) {
+            val c = cues[i]
+            if (posMs < c.endMs) active.add(0, c.text)
+            i--
+        }
+        return active.joinToString("\n")
+    }
 
     var onPlaybackInfo: ((PlaybackSnapshot) -> Unit)? = null
     var onVideoSize: ((width: Int, height: Int, aspect: Float) -> Unit)? = null
@@ -72,6 +106,8 @@ class AirPlayVideoPlayer(private val context: Context) {
             onTitle?.invoke(mediaMetadata.title?.toString())
         }
         override fun onCues(cueGroup: CueGroup) {
+            // embedded subtitle tracks; sidecar files are timed by _subtitleTick
+            if (sidecarCues.isNotEmpty()) return
             _subtitle.value = cueGroup.cues
                 .mapNotNull { it.text?.toString()?.trim()?.takeIf(String::isNotEmpty) }
                 .joinToString("\n")
@@ -96,23 +132,15 @@ class AirPlayVideoPlayer(private val context: Context) {
         onPlaybackInfo?.invoke(PlaybackSnapshot(startPositionSeconds, 0f, 0f, false, true))
         // look for a subtitle file next to the movie before starting (network, so off the main thread)
         Thread {
-            val sub = runCatching { SidecarSubtitles.find(context, location) }.getOrNull()
+            val sub = runCatching { SidecarSubtitles.find(location) }.getOrNull()
             mainHandler.post {
                 if (gen != playGeneration || player !== p) return@post
-                val item = MediaItem.Builder().setUri(location).apply {
-                    if (sub != null) {
-                        setSubtitleConfigurations(listOf(
-                            MediaItem.SubtitleConfiguration.Builder(sub.uri)
-                                .setMimeType(sub.mimeType)
-                                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT or C.SELECTION_FLAG_FORCED)
-                                .build()
-                        ))
-                    }
-                }.build()
-                p.setMediaItem(item, (startPositionSeconds * 1000).toLong())
+                sidecarCues = sub?.cues ?: emptyList()
+                p.setMediaItem(MediaItem.fromUri(location), (startPositionSeconds * 1000).toLong())
                 p.playWhenReady = true
                 p.prepare()
                 mainHandler.postDelayed(_reportTick, REPORT_INTERVAL_MS)
+                if (sidecarCues.isNotEmpty()) mainHandler.post(_subtitleTick)
             }
         }.start()
     }
@@ -183,6 +211,8 @@ class AirPlayVideoPlayer(private val context: Context) {
 
     private fun _stopInternal(reportStopped: Boolean) {
         mainHandler.removeCallbacks(_reportTick)
+        mainHandler.removeCallbacks(_subtitleTick)
+        sidecarCues = emptyList()
         player?.let {
             it.removeListener(_listener)
             it.release()
@@ -222,5 +252,6 @@ class AirPlayVideoPlayer(private val context: Context) {
     companion object {
         private const val TAG = "AirPlayVideoPlayer"
         private const val REPORT_INTERVAL_MS = 250L
+        private const val SUBTITLE_TICK_MS = 50L
     }
 }

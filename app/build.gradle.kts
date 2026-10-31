@@ -35,8 +35,8 @@ android {
         applicationId = "io.github.mehdieskandari.airplaytv"
         minSdk = 23
         targetSdk = 37
-        versionCode = 100
-        versionName = "1.0.0"
+        versionCode = 110
+        versionName = "1.1.0"
 
         externalNativeBuild {
             cmake {

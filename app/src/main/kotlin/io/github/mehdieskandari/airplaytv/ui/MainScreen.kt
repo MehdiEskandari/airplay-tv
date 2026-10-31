@@ -324,7 +324,7 @@ fun MainScreen(
                 )
             }
             val subtitle by viewModel.videoSubtitle.collectAsState()
-            SubtitleOverlay(subtitle)
+            SubtitleOverlay(subtitle, rememberSubtitleStyle(viewModel))
             VideoPlayerGestures(
                 enabled = videoPlaybackActive,
                 locked = controlsLocked,

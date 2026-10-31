@@ -1,11 +1,7 @@
 package io.github.mehdieskandari.airplaytv.renderer
 
-import android.content.Context
-import android.net.Uri
 import android.util.Log
-import androidx.media3.common.MimeTypes
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -22,7 +18,8 @@ import java.util.concurrent.TimeUnit
 // so look there. Only the movie's own server is contacted.
 object SidecarSubtitles {
 
-    data class Found(val uri: Uri, val mimeType: String)
+    data class Cue(val startMs: Long, val endMs: Long, val text: String)
+    data class Found(val cues: List<Cue>)
 
     private const val TAG = "SidecarSubtitles"
     private const val TIMEOUT_MS = 3000
@@ -35,7 +32,7 @@ object SidecarSubtitles {
         ".vtt", ".srt", ".en.srt", ".en.vtt"
     )
 
-    fun find(context: Context, location: String): Found? {
+    fun find(location: String): Found? {
         val candidates = candidateUrls(location)
         if (candidates.isEmpty()) return null
         val pool = Executors.newFixedThreadPool(4)
@@ -45,14 +42,10 @@ object SidecarSubtitles {
             for ((i, f) in futures.withIndex()) {
                 val left = deadline - System.currentTimeMillis()
                 val text = runCatching { f.get(left.coerceAtLeast(1), TimeUnit.MILLISECONDS) }.getOrNull() ?: continue
-                val mime = if (text.trimStart().startsWith("WEBVTT")) MimeTypes.TEXT_VTT else MimeTypes.APPLICATION_SUBRIP
-                val ext = if (mime == MimeTypes.TEXT_VTT) "vtt" else "srt"
-                val dir = File(context.cacheDir, "subtitles").apply { mkdirs() }
-                dir.listFiles()?.forEach { it.delete() }
-                val file = File(dir, "sub_${System.currentTimeMillis()}.$ext")
-                file.writeText(text, Charsets.UTF_8)
-                Log.i(TAG, "Using subtitle #$i (${text.length} chars, $ext)")
-                return Found(Uri.fromFile(file), mime)
+                val cues = parse(text)
+                if (cues.isEmpty()) continue
+                Log.i(TAG, "Using subtitle #$i (${cues.size} lines)")
+                return Found(cues)
             }
             return null
         } finally {
@@ -112,6 +105,46 @@ object SidecarSubtitles {
         } finally {
             conn?.disconnect()
         }
+    }
+
+    private val TIMING = Regex(
+        """((?:\d+:)?\d{1,2}:\d{2}[.,]\d{1,3})\s*-->\s*((?:\d+:)?\d{1,2}:\d{2}[.,]\d{1,3})"""
+    )
+    private val TAGS = Regex("<[^>]*>|\\{[^}]*\\}")
+
+    // SRT and WebVTT: blocks separated by blank lines, a timing line, then text lines
+    fun parse(text: String): List<Cue> {
+        val out = ArrayList<Cue>()
+        val lines = text.replace("\r\n", "\n").replace('\r', '\n').split('\n')
+        var i = 0
+        while (i < lines.size) {
+            val m = TIMING.find(lines[i])
+            if (m == null) { i++; continue }
+            val start = toMs(m.groupValues[1])
+            val end = toMs(m.groupValues[2])
+            i++
+            val body = StringBuilder()
+            while (i < lines.size && lines[i].isNotBlank() && TIMING.find(lines[i]) == null) {
+                val line = TAGS.replace(lines[i], "").replace("&nbsp;", " ").replace("&amp;", "&")
+                    .replace("&lt;", "<").replace("&gt;", ">").trim()
+                if (line.isNotEmpty()) {
+                    if (body.isNotEmpty()) body.append('\n')
+                    body.append(line)
+                }
+                i++
+            }
+            if (end > start && body.isNotEmpty()) out.add(Cue(start, end, body.toString()))
+        }
+        out.sortBy { it.startMs }
+        return out
+    }
+
+    private fun toMs(t: String): Long {
+        val parts = t.replace(',', '.').split(':')
+        val sec = parts.last().toDouble()
+        val min = parts[parts.size - 2].toLong()
+        val hr = if (parts.size == 3) parts[0].toLong() else 0L
+        return (hr * 3600_000L) + (min * 60_000L) + (sec * 1000).toLong()
     }
 
     // Persian .srt files are often Windows-1256, not UTF-8

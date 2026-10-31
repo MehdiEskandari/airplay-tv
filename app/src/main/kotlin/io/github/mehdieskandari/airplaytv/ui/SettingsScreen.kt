@@ -24,6 +24,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -208,6 +214,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
             checked = overscanned,
             onCheckedChange = { viewModel.set(Prefs.OVERSCANNED, it) }
         )
+
+        SubtitleSettings(viewModel)
 
         SectionHeader(stringResource(R.string.section_decode))
 
@@ -734,5 +742,201 @@ private fun SettingSwitch(
         headlineContent = { Text(title) },
         supportingContent = { Text(description) },
         trailingContent = { Switch(checked = checked, onCheckedChange = null) }
+    )
+}
+
+// subtitle look and timing; every option is a chip so it works with a TV remote
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SubtitleSettings(viewModel: MainViewModel) {
+    val style = rememberSubtitleStyle(viewModel)
+    val delayMs by viewModel.pref(Prefs.SUB_DELAY_MS).collectAsState()
+
+    SectionHeader("Subtitles · زیرنویس")
+
+    // live preview on a dark "movie" background
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(170.dp)
+            .background(
+                Brush.verticalGradient(listOf(Color(0xFF3A4A5C), Color(0xFF15191E))),
+                RoundedCornerShape(12.dp)
+            ),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        SubtitleText(
+            text = "این یک نمونه زیرنویس است\nThis is a sample subtitle",
+            style = style.copy(marginDp = 0),
+            modifier = Modifier.padding(bottom = (style.marginDp / 4).coerceIn(8, 60).dp)
+        )
+    }
+
+    SettingSwitch(
+        title = "Show subtitles · نمایش زیرنویس",
+        description = "Finds a same-named .vtt/.srt next to the video · فایل زیرنویس هم‌نام کنار فیلم پیدا می‌شود",
+        checked = style.enabled,
+        onCheckedChange = { viewModel.set(Prefs.SUB_ENABLED, it) }
+    )
+
+    ListItem(
+        headlineContent = { Text("Font · فونت") },
+        supportingContent = {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Prefs.SUB_FONTS.forEach { key ->
+                    FilterChip(
+                        selected = style.font == key,
+                        onClick = { viewModel.set(Prefs.SUB_FONT, key) },
+                        label = {
+                            Text(
+                                SubtitleFonts.labels[key] ?: key,
+                                fontFamily = SubtitleFonts.family(key),
+                                fontSize = 18.sp
+                            )
+                        },
+                        modifier = Modifier.dpadFocus()
+                    )
+                }
+            }
+        }
+    )
+
+    SettingSwitch(
+        title = "Bold · ضخیم",
+        description = "Thicker letters · حروف پررنگ‌تر",
+        checked = style.bold,
+        onCheckedChange = { viewModel.set(Prefs.SUB_BOLD, it) }
+    )
+
+    SettingChips(
+        title = "Size · اندازه",
+        description = "Text size · اندازهٔ متن",
+        value = style.sizeSp.toString(),
+        options = listOf(20, 24, 28, 32, 36, 42, 48, 56, 64).map { it.toString() to it.toString() },
+        onValueChange = { viewModel.set(Prefs.SUB_SIZE, it.toInt()) }
+    )
+
+    val colors = listOf(
+        "#FFFFFF" to "سفید",
+        "#FFEB3B" to "زرد",
+        "#FFF59D" to "زرد روشن",
+        "#80DEEA" to "فیروزه‌ای",
+        "#A5D6A7" to "سبز",
+        "#FFB74D" to "نارنجی",
+        "#F48FB1" to "صورتی",
+        "#E0E0E0" to "خاکستری",
+    )
+    ListItem(
+        headlineContent = { Text("Color · رنگ") },
+        supportingContent = {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                colors.forEach { (hex, label) ->
+                    FilterChip(
+                        selected = style.color == parseHexColor(hex),
+                        onClick = { viewModel.set(Prefs.SUB_COLOR, hex) },
+                        leadingIcon = {
+                            Box(
+                                Modifier
+                                    .size(16.dp)
+                                    .background(parseHexColor(hex), CircleShape)
+                            )
+                        },
+                        label = { Text(label) },
+                        modifier = Modifier.dpadFocus()
+                    )
+                }
+            }
+        }
+    )
+
+    SettingChips(
+        title = "Edge · حاشیهٔ حروف",
+        description = "Makes text readable on bright scenes · خوانایی روی صحنه‌های روشن",
+        value = style.edge,
+        options = listOf("outline" to "دورخط", "shadow" to "سایه", "none" to "هیچ"),
+        onValueChange = { viewModel.set(Prefs.SUB_EDGE, it) }
+    )
+
+    SettingChips(
+        title = "Background · پس‌زمینه",
+        description = "Dark box behind the text · کادر تیره پشت متن",
+        value = style.bgPercent.toString(),
+        options = listOf(0 to "بدون", 25 to "۲۵٪", 35 to "۳۵٪", 50 to "۵۰٪", 70 to "۷۰٪", 90 to "۹۰٪")
+            .map { (v, l) -> v.toString() to l },
+        onValueChange = { viewModel.set(Prefs.SUB_BG, it.toInt()) }
+    )
+
+    SettingChips(
+        title = "Position · ارتفاع از پایین",
+        description = "Distance from the bottom of the screen · فاصله از پایین صفحه",
+        value = style.marginDp.toString(),
+        options = listOf(10 to "خیلی پایین", 40 to "پایین", 80 to "متوسط", 140 to "بالاتر", 220 to "خیلی بالا")
+            .map { (v, l) -> v.toString() to l },
+        onValueChange = { viewModel.set(Prefs.SUB_MARGIN, it.toInt()) }
+    )
+
+    // timing: applies instantly while a video plays
+    ListItem(
+        headlineContent = { Text("Timing · هماهنگی زمان") },
+        supportingContent = {
+            Column(Modifier.padding(top = 8.dp)) {
+                Text(
+                    when {
+                        delayMs == 0 -> "بدون تأخیر (0.0s)"
+                        delayMs > 0 -> "زیرنویس %.1f ثانیه دیرتر (+%.1fs)".format(delayMs / 1000f, delayMs / 1000f)
+                        else -> "زیرنویس %.1f ثانیه زودتر (%.1fs)".format(-delayMs / 1000f, delayMs / 1000f)
+                    }
+                )
+                Spacer(Modifier.height(8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(-1000 to "−1s", -500 to "−0.5s", 500 to "+0.5s", 1000 to "+1s").forEach { (step, label) ->
+                        FilterChip(
+                            selected = false,
+                            onClick = {
+                                viewModel.set(Prefs.SUB_DELAY_MS, (delayMs + step).coerceIn(Prefs.SUB_DELAY_MS.range))
+                            },
+                            label = { Text(label) },
+                            modifier = Modifier.dpadFocus()
+                        )
+                    }
+                    FilterChip(
+                        selected = delayMs == 0,
+                        onClick = { viewModel.set(Prefs.SUB_DELAY_MS, 0) },
+                        label = { Text("صفر · Reset") },
+                        modifier = Modifier.dpadFocus()
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "اگر زیرنویس زودتر از صدا می‌آید + بزنید، اگر دیرتر می‌آید − بزنید",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    )
+
+    SettingSwitch(
+        title = "Reset subtitle style · بازگشت به پیش‌فرض",
+        description = "Vazirmatn, 30, white, outline · وزیرمتن، ۳۰، سفید، دورخط",
+        checked = false,
+        onCheckedChange = {
+            viewModel.set(Prefs.SUB_FONT, Prefs.SUB_FONT.def)
+            viewModel.set(Prefs.SUB_BOLD, Prefs.SUB_BOLD.def)
+            viewModel.set(Prefs.SUB_SIZE, Prefs.SUB_SIZE.def)
+            viewModel.set(Prefs.SUB_COLOR, Prefs.SUB_COLOR.def)
+            viewModel.set(Prefs.SUB_EDGE, Prefs.SUB_EDGE.def)
+            viewModel.set(Prefs.SUB_BG, Prefs.SUB_BG.def)
+            viewModel.set(Prefs.SUB_MARGIN, Prefs.SUB_MARGIN.def)
+            viewModel.set(Prefs.SUB_DELAY_MS, Prefs.SUB_DELAY_MS.def)
+        }
     )
 }

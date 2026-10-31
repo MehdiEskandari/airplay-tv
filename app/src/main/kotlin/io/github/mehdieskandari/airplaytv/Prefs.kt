@@ -115,4 +115,18 @@ object Prefs {
     val ADVERTISE_AUDIO = bool("advertise_audio", true, restart = true)
     val LAUNCH_ON_CONNECT = bool("launch_on_connect", true)
     val USB_ONLY = bool("usb_only", false, restart = true)
+
+    // subtitles for AirPlay video
+    val SUB_FONTS = listOf("system", "vazirmatn", "sahel", "shabnam", "samim", "estedad", "lalezar")
+    private val HEX_COLOR = Regex("#[0-9A-Fa-f]{6}")
+    val SUB_ENABLED = bool("sub_enabled", true)
+    val SUB_FONT = str("sub_font", "vazirmatn") { it in SUB_FONTS }
+    val SUB_BOLD = bool("sub_bold", false)
+    val SUB_SIZE = int("sub_size", 30, 12..96)
+    val SUB_COLOR = str("sub_color", "#FFFFFF") { HEX_COLOR.matches(it) }
+    val SUB_EDGE = str("sub_edge", "outline") { it in setOf("none", "shadow", "outline") }
+    val SUB_BG = int("sub_bg", 35, 0..100)
+    val SUB_MARGIN = int("sub_margin", 40, 0..400)
+    // positive = subtitles appear later
+    val SUB_DELAY_MS = int("sub_delay_ms", 0, -60_000..60_000)
 }

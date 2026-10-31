@@ -16,6 +16,7 @@
 - **پخش صفحه (Screen Mirroring)** از آیفون، آیپد و مک با H.264 و H.265
 - **پخش فیلم با AirPlay**: فیلم با کیفیت کامل مستقیم روی تلویزیون پخش می‌شود
 - **زیرنویس خودکار**: اگر کنار فایل فیلم روی سرور، فایل زیرنویس هم‌اسم باشد (`.vtt`، `.srt`، `.fa.srt` و...) پیدا و نمایش داده می‌شود. زیرنویس‌های فارسی با کدگذاری قدیمی ویندوز (Windows-1256) هم درست نمایش داده می‌شوند.
+- **تنظیمات کامل زیرنویس** با پیش‌نمایش زنده: ۶ فونت فارسی (وزیرمتن، ساحل، شبنم، صمیم، استعداد، لاله‌زار)، ضخیم، اندازه، رنگ، دورخط یا سایه، تیرگی پس‌زمینه، ارتفاع از پایین صفحه، و **هماهنگ کردن زمان زیرنویس** (جلو/عقب بردن با گام نیم‌ثانیه، بدون توقف فیلم)
 - **زوم با ریموت** هنگام پخش صفحه: دکمهٔ ▲ و ▼ برای حذف حاشیهٔ سیاه دور فیلم
 - **تصویر پایدارتر**: فریم‌ها هنگام شلوغی پردازنده دور ریخته نمی‌شوند (تصویر شطرنجی نمی‌شود)، و پیش‌فرض ۳۰ فریم در ثانیه برای کیفیت بهتر در هر فریم
 - پخش موسیقی با نام آهنگ و کاور
@@ -56,6 +57,7 @@ adb shell am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -
 
 - Screen mirroring (H.264 / H.265), AirPlay video casting and audio streaming
 - **Automatic subtitles**: picks up a same-named subtitle file next to the video on the server (`.vtt`, `.srt`, `.fa.srt`, …), including Windows-1256 encoded Persian `.srt`
+- **Subtitle settings** with live preview: 6 bundled Persian fonts, bold, size, color, outline/shadow, background, position, and instant timing offset
 - **Remote-controlled zoom** while mirroring (▲ / ▼) to crop black bars around a movie
 - **More stable picture**: the decoder input waits instead of dropping frames (no blocky artifacts), 30 fps default
 - Auto-start on boot, full D-pad navigation, optional PIN
@@ -75,6 +77,8 @@ Requires JDK 21, Android SDK 37 and NDK 27.0.12077973. The project path must not
 ## License
 
 GPL-3.0, see [LICENSE](LICENSE).
+
+Bundled fonts (SIL Open Font License 1.1, see [fonts-licenses](fonts-licenses)): [Vazirmatn](https://github.com/rastikerdar/vazirmatn), [Sahel](https://github.com/rastikerdar/sahel-font), [Shabnam](https://github.com/rastikerdar/shabnam-font), [Samim](https://github.com/rastikerdar/samim-font), [Estedad](https://github.com/aminabedi68/Estedad), [Lalezar](https://github.com/google/fonts/tree/main/ofl/lalezar).
 
 Based on [android-airplay-server](https://github.com/jqssun/android-airplay-server) (GPL-3.0). Uses [UxPlay](https://github.com/FDH2/UxPlay), [FFmpeg](https://ffmpeg.org), [libplist](https://github.com/libimobiledevice/libplist) and [OpenSSL](https://www.openssl.org).
 
