@@ -110,6 +110,10 @@ fun MainScreen(
     val mirroringActive by viewModel.mirroringActive.collectAsState()
     val autoFullscreen by viewModel.pref(Prefs.AUTO_FULLSCREEN).collectAsState()
 
+    // shown over every screen, including fullscreen video
+    DeviceApprovalDialog(viewModel)
+    UpdateDialog(viewModel, hidden = videoPlaybackActive || mirroringActive)
+
     // mirroring zoom (fullscreen only): crops black bars around a movie inside the mirrored screen
     var mirrorZoom by remember { mutableFloatStateOf(1f) }
 

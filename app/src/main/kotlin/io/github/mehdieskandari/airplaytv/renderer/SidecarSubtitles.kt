@@ -53,6 +53,13 @@ object SidecarSubtitles {
         }
     }
 
+    // a subtitle link given directly (e.g. by a DLNA app)
+    fun fetchExplicit(url: String): Found? {
+        val text = fetch(url) ?: return null
+        val cues = parse(text)
+        return if (cues.isEmpty()) null else Found(cues)
+    }
+
     private fun candidateUrls(location: String): List<String> {
         val uri = runCatching { URI(location) }.getOrNull() ?: return emptyList()
         val scheme = uri.scheme?.lowercase()

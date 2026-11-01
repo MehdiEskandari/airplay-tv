@@ -72,6 +72,7 @@ class MainActivity : ComponentActivity() {
             if (!hasLocalNetwork()) add(Manifest.permission.ACCESS_LOCAL_NETWORK)
         }
         if (missing.isNotEmpty()) permissions.launch(missing.toTypedArray())
+        _askBatteryExemptionOnce()
 
         bindService(Intent(this, AirPlayService::class.java), connection, BIND_AUTO_CREATE)
 
@@ -214,5 +215,21 @@ class MainActivity : ComponentActivity() {
         }
         unbindService(connection)
         super.onDestroy()
+    }
+
+    // ask once to be left out of battery optimization so android doesn't stop the receiver
+    @android.annotation.SuppressLint("BatteryLife")
+    private fun _askBatteryExemptionOnce() {
+        val sp = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
+        if (sp.getBoolean("asked_battery_exemption", false)) return
+        sp.edit().putBoolean("asked_battery_exemption", true).apply()
+        val pm = getSystemService(android.os.PowerManager::class.java) ?: return
+        if (pm.isIgnoringBatteryOptimizations(packageName)) return
+        runCatching {
+            startActivity(
+                Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .setData(android.net.Uri.parse("package:$packageName"))
+            )
+        }
     }
 }

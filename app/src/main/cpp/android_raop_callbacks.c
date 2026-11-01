@@ -69,6 +69,8 @@ void android_callbacks_init(android_callback_ctx_t *ctx, JNIEnv *env, jobject ca
     ctx->on_video_rate = (*env)->GetMethodID(env, cls, "onVideoRate", "(F)V");
     ctx->on_video_stop = (*env)->GetMethodID(env, cls, "onVideoStop", "()V");
     ctx->on_video_session_poll = (*env)->GetMethodID(env, cls, "onVideoSessionPoll", "()V");
+    ctx->on_client_request = (*env)->GetMethodID(env, cls, "onClientRequest",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z");
     (*env)->DeleteLocalRef(env, cls);
 }
 
@@ -191,6 +193,27 @@ static void _display_pin(void *cls, char *pin) {
     jstring jpin = (*env)->NewStringUTF(env, pin);
     (*env)->CallVoidMethod(env, ctx->callback_obj, ctx->on_display_pin, jpin);
     (*env)->DeleteLocalRef(env, jpin);
+}
+
+/* asks the app whether this sender may connect (trusted devices / approval prompt).
+ * runs on the server thread and may block while the user decides */
+static void _report_client_request(void *cls, char *deviceid, char *model, char *name, bool *admit) {
+    android_callback_ctx_t *ctx = (android_callback_ctx_t *)cls;
+    JNIEnv *env = _get_env(ctx);
+    if (!env || !ctx->on_client_request) return;
+    jstring jid = (*env)->NewStringUTF(env, deviceid ? deviceid : "");
+    jstring jmodel = (*env)->NewStringUTF(env, model ? model : "");
+    jstring jname = (*env)->NewStringUTF(env, name ? name : "");
+    jboolean ok = (*env)->CallBooleanMethod(env, ctx->callback_obj, ctx->on_client_request, jid, jmodel, jname);
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        ok = JNI_TRUE;
+    }
+    (*env)->DeleteLocalRef(env, jid);
+    (*env)->DeleteLocalRef(env, jmodel);
+    (*env)->DeleteLocalRef(env, jname);
+    *admit = ok ? true : false;
+    LOGI("client request %s (%s): %s", name ? name : "?", model ? model : "?", ok ? "admitted" : "refused");
 }
 
 /* Stubs for less critical callbacks */
@@ -421,6 +444,7 @@ void android_callbacks_fill(raop_callbacks_t *cbs, android_callback_ctx_t *ctx) 
     cbs->on_video_stop = _video_stop;
     cbs->on_video_acquire_playback_info = _video_acquire_playback_info;
     cbs->on_video_playlist_remove = _video_playlist_remove;
+    cbs->report_client_request = _report_client_request;
     if (ctx->require_pin) {
         cbs->check_register = _check_register;
         cbs->register_client = _register_client;

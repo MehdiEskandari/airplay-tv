@@ -196,6 +196,105 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
             value?.invoke(_lastPin)
         }
 
+    val updater by lazy { UpdateManager(this, lifecycleScope) }
+
+    // trusted devices: unknown senders need one approval on the TV, then connect freely
+    val trustedDevices by lazy { TrustedDevices(this) }
+    private val _pendingApproval = MutableStateFlow<ApprovalRequest?>(null)
+    val pendingApproval = _pendingApproval.asStateFlow()
+    private val approvalLock = Any()
+    // "allow once" covers follow-up connections of the same session for a while
+    private val allowedOnce = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
+    // called from the AirPlay server thread (and DLNA); blocks until the user answers or times out
+    fun requestApproval(id: String, name: String, model: String, source: String): Boolean {
+        if (!prefs[Prefs.APPROVE_NEW_DEVICES]) return true
+        val key = id.ifEmpty { name }
+        if (trustedDevices.isTrusted(key)) {
+            log("Trusted device connected: $name")
+            return true
+        }
+        allowedOnce[key]?.let { if (System.currentTimeMillis() - it < ALLOW_ONCE_MS) return true }
+        synchronized(approvalLock) {
+            if (trustedDevices.isTrusted(key)) return true
+            val req = ApprovalRequest(key, name.ifEmpty { model.ifEmpty { key } }, model, source)
+            _pendingApproval.value = req
+            log("Waiting for approval: ${req.name} ($model)")
+            launchMainActivity()
+            val ok = runCatching { req.result.get(APPROVAL_TIMEOUT_S, java.util.concurrent.TimeUnit.SECONDS) }
+                .getOrDefault(false)
+            _pendingApproval.value = null
+            log(if (ok) "Approved: ${req.name}" else "Refused: ${req.name}")
+            return ok
+        }
+    }
+
+    fun answerApproval(allow: Boolean, remember: Boolean) {
+        val req = _pendingApproval.value ?: return
+        if (allow && remember) trustedDevices.add(req.id, req.name, req.model)
+        if (allow && !remember) allowedOnce[req.id] = System.currentTimeMillis()
+        req.result.complete(allow)
+    }
+
+    override fun onClientRequest(deviceId: String, model: String, name: String): Boolean =
+        requestApproval(deviceId, name, model, "AirPlay")
+
+    // ---- DLNA (Android phones, VLC, BubbleUPnP, ...) ----
+    private var dlna: io.github.mehdieskandari.airplaytv.dlna.DlnaRenderer? = null
+
+    private fun _startDlna(name: String) {
+        val uuid = prefs.getString("dlna_uuid", null) ?: java.util.UUID.randomUUID().toString().also {
+            prefs.edit().putString("dlna_uuid", it).apply()
+        }
+        val r = io.github.mehdieskandari.airplaytv.dlna.DlnaRenderer(this, dlnaHost, name, uuid, updater.currentVersion)
+        dlna = if (runCatching { r.start() }.getOrDefault(false)) r else null
+        log(if (dlna != null) "DLNA receiver started" else "DLNA receiver could not start")
+    }
+
+    private val dlnaHost = object : io.github.mehdieskandari.airplaytv.dlna.DlnaHost {
+        private val audio get() = getSystemService(android.media.AudioManager::class.java)
+        override fun approve(id: String, name: String) = requestApproval(id, name, "DLNA", "DLNA")
+        override fun play(url: String, title: String, subtitleUrl: String?) {
+            Handler(Looper.getMainLooper()).post {
+                _startVideo(url, 0f, subtitleUrl)
+                if (title.isNotEmpty()) _videoTitle.value = title
+                log("DLNA play: $url")
+                if (shouldLaunchOnConnect()) launchMainActivity()
+            }
+        }
+        override fun resume() { airPlayVideoPlayer.setPlaying(true) }
+        override fun pause() { airPlayVideoPlayer.setPlaying(false) }
+        override fun stop() { Handler(Looper.getMainLooper()).post { _endVideoPlayback("DLNA stopped") } }
+        override fun seek(positionMs: Long) { airPlayVideoPlayer.scrub(positionMs / 1000f) }
+        override fun playback(): io.github.mehdieskandari.airplaytv.dlna.DlnaPlayback {
+            val info = _videoPlaybackInfo.value
+            val st = when {
+                !_videoPlaybackActive.value -> io.github.mehdieskandari.airplaytv.dlna.TransportState.STOPPED
+                info.buffering -> io.github.mehdieskandari.airplaytv.dlna.TransportState.TRANSITIONING
+                info.playing -> io.github.mehdieskandari.airplaytv.dlna.TransportState.PLAYING
+                else -> io.github.mehdieskandari.airplaytv.dlna.TransportState.PAUSED_PLAYBACK
+            }
+            return io.github.mehdieskandari.airplaytv.dlna.DlnaPlayback(st, info.positionMs, info.durationMs)
+        }
+        override fun volume(): Int {
+            val a = audio ?: return 50
+            val max = a.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+            return a.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) * 100 / max
+        }
+        override fun setVolume(v: Int) {
+            val a = audio ?: return
+            val max = a.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+            a.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, (v * max + 50) / 100, 0)
+        }
+        override fun muted() = audio?.isStreamMute(android.media.AudioManager.STREAM_MUSIC) ?: false
+        override fun setMuted(m: Boolean) {
+            audio?.adjustStreamVolume(
+                android.media.AudioManager.STREAM_MUSIC,
+                if (m) android.media.AudioManager.ADJUST_MUTE else android.media.AudioManager.ADJUST_UNMUTE, 0
+            )
+        }
+    }
+
     private fun log(msg: String) {
         Log.i(TAG, msg)
         logCallback?.invoke(msg)
@@ -218,6 +317,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        updater.startPeriodicChecks()
         dacpController = DacpController(this)
         dacpPlayer = DacpPlayer(
             mainLooper,
@@ -348,12 +448,16 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_START_SERVER) {
+        // null intent = the system restarted us after killing the process (START_STICKY)
+        val restartedBySystem = intent == null && prefs[Prefs.RUN_IN_BACKGROUND]
+        if (intent?.action == ACTION_START_SERVER || restartedBySystem) {
             promoteToForeground()
-            _startServer(ensureServiceStarted = false)
+            if (_serverState.value != ServerState.RUNNING) _startServer(ensureServiceStarted = false)
             if (_serverState.value != ServerState.RUNNING) stopSelf(startId)
+            if (restartedBySystem) log("Restarted in background after the system stopped the app")
         }
-        return START_NOT_STICKY
+        // keep the receiver available: android restarts a sticky service if it gets killed
+        return if (prefs[Prefs.RUN_IN_BACKGROUND]) START_STICKY else START_NOT_STICKY
     }
 
     fun startServer() {
@@ -458,6 +562,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         } else {
             nsdManager?.register(services)
         }
+        if (prefs[Prefs.DLNA_ENABLED] && !prefs[Prefs.USB_ONLY]) _startDlna(effectiveName)
 
         _serverState.value = ServerState.RUNNING
         if (ensureServiceStarted) {
@@ -532,6 +637,8 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     }
 
     private fun _shutdown() {
+        dlna?.stop()
+        dlna = null
         audioRenderer.detachEngine()
         if (nativeHandle != 0L) {
             NativeBridge.nativeStop(nativeHandle)
@@ -651,7 +758,9 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         _lastVideoPollAt = SystemClock.elapsedRealtime()
     }
 
-    override fun onVideoPlay(location: String, startPositionSeconds: Float) {
+    override fun onVideoPlay(location: String, startPositionSeconds: Float) = _startVideo(location, startPositionSeconds, null)
+
+    private fun _startVideo(location: String, startPositionSeconds: Float, subtitleUrl: String?) {
         _videoLocation.value = location
         _videoPlaySeq.value++
         _videoPollSuppressed = false
@@ -660,7 +769,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         _videoPlaybackSize.value = null
         _videoTitle.value = ""
         _videoPlaybackActive.value = true
-        airPlayVideoPlayer.play(location, startPositionSeconds)
+        airPlayVideoPlayer.play(location, startPositionSeconds, subtitleUrl)
         // claim media-button routing for keys that arrive as media-session events
         mediaSession?.isActive = true
         log("AirPlay Video play: $location @ ${startPositionSeconds}s")
@@ -1177,6 +1286,8 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     }
 
     companion object {
+        private const val APPROVAL_TIMEOUT_S = 30L
+        private const val ALLOW_ONCE_MS = 10 * 60_000L
         private const val TAG = "AirPlayService"
         private const val CLIENT_VOL_EPS = 0.033f
         private const val CLIENT_VOL_MAX_STEPS = 32

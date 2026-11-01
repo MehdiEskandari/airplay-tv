@@ -25,4 +25,6 @@ interface RaopCallbackHandler {
     fun onVideoStop()
     // fired per sender GET /playback-info poll; polling starts before /play
     fun onVideoSessionPoll()
+    // a sender is connecting; return false to refuse it. may block (approval prompt)
+    fun onClientRequest(deviceId: String, model: String, name: String): Boolean
 }

@@ -165,6 +165,32 @@ class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app
     val videoSubtitle: StateFlow<String> = _videoSubtitle.asStateFlow()
     private var _subtitleJob: Job? = null
 
+    // device approval prompt + trusted device list
+    private val _pendingApproval = MutableStateFlow<io.github.mehdieskandari.airplaytv.service.ApprovalRequest?>(null)
+    val pendingApproval: StateFlow<io.github.mehdieskandari.airplaytv.service.ApprovalRequest?> = _pendingApproval.asStateFlow()
+    private val _trustedDevices = MutableStateFlow<List<io.github.mehdieskandari.airplaytv.service.TrustedDevice>>(emptyList())
+    val trustedDevices: StateFlow<List<io.github.mehdieskandari.airplaytv.service.TrustedDevice>> = _trustedDevices.asStateFlow()
+    private var _devicesJob: Job? = null
+
+    fun answerApproval(allow: Boolean, remember: Boolean) {
+        service?.answerApproval(allow, remember)
+        _pendingApproval.value = null
+    }
+    // app updates from GitHub Releases
+    private val _update = MutableStateFlow<io.github.mehdieskandari.airplaytv.service.AppRelease?>(null)
+    val update: StateFlow<io.github.mehdieskandari.airplaytv.service.AppRelease?> = _update.asStateFlow()
+    private val _updateProgress = MutableStateFlow<Float?>(null)
+    val updateProgress: StateFlow<Float?> = _updateProgress.asStateFlow()
+    private val _updateStatus = MutableStateFlow("")
+    val updateStatus: StateFlow<String> = _updateStatus.asStateFlow()
+    val currentVersion: String get() = service?.updater?.currentVersion ?: ""
+    fun checkForUpdate() { service?.updater?.checkNow() }
+    fun installUpdate() { service?.updater?.downloadAndInstall() }
+    fun postponeUpdate() { service?.updater?.postpone() }
+
+    fun forgetDevice(id: String) { service?.trustedDevices?.remove(id) }
+    fun forgetAllDevices() { service?.trustedDevices?.clear() }
+
     private val _videoLocation = MutableStateFlow<String?>(null)
     val videoLocation: StateFlow<String?> = _videoLocation.asStateFlow()
 
@@ -270,6 +296,14 @@ class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app
         _subtitleJob = viewModelScope.launch {
             svc.airPlayVideoPlayer.subtitle.collect { _videoSubtitle.value = it }
         }
+        _devicesJob?.cancel()
+        _devicesJob = viewModelScope.launch {
+            launch { svc.trustedDevices.devices.collect { _trustedDevices.value = it } }
+            launch { svc.pendingApproval.collect { _pendingApproval.value = it } }
+            launch { svc.updater.available.collect { _update.value = it } }
+            launch { svc.updater.progress.collect { _updateProgress.value = it } }
+            launch { svc.updater.status.collect { _updateStatus.value = it } }
+        }
         updateFromService()
     }
 
@@ -277,6 +311,7 @@ class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app
         service = null
         _subtitleJob?.cancel()
         _videoSubtitle.value = ""
+        _devicesJob?.cancel()
     }
 
     fun startServer() {

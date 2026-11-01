@@ -119,7 +119,7 @@ class AirPlayVideoPlayer(private val context: Context) {
         }
     }
 
-    fun play(location: String, startPositionSeconds: Float) = mainHandler.post {
+    fun play(location: String, startPositionSeconds: Float, subtitleUrl: String? = null) = mainHandler.post {
         // recycling must not report the stopped sentinel: senders poll right after /play
         _stopInternal(reportStopped = false)
         val p = ExoPlayer.Builder(context).build().also {
@@ -132,7 +132,9 @@ class AirPlayVideoPlayer(private val context: Context) {
         onPlaybackInfo?.invoke(PlaybackSnapshot(startPositionSeconds, 0f, 0f, false, true))
         // look for a subtitle file next to the movie before starting (network, so off the main thread)
         Thread {
-            val sub = runCatching { SidecarSubtitles.find(location) }.getOrNull()
+            val sub = runCatching {
+                subtitleUrl?.let { SidecarSubtitles.fetchExplicit(it) } ?: SidecarSubtitles.find(location)
+            }.getOrNull()
             mainHandler.post {
                 if (gen != playGeneration || player !== p) return@post
                 sidecarCues = sub?.cues ?: emptyList()

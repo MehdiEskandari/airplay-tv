@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Brush
@@ -214,6 +215,10 @@ fun SettingsScreen(viewModel: MainViewModel) {
             checked = overscanned,
             onCheckedChange = { viewModel.set(Prefs.OVERSCANNED, it) }
         )
+
+        DeviceSettings(viewModel)
+
+        UpdateSettings(viewModel)
 
         SubtitleSettings(viewModel)
 
@@ -937,6 +942,113 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
             viewModel.set(Prefs.SUB_BG, Prefs.SUB_BG.def)
             viewModel.set(Prefs.SUB_MARGIN, Prefs.SUB_MARGIN.def)
             viewModel.set(Prefs.SUB_DELAY_MS, Prefs.SUB_DELAY_MS.def)
+        }
+    )
+}
+
+// trusted devices: approve once on the TV, then they connect automatically
+@Composable
+private fun DeviceSettings(viewModel: MainViewModel) {
+    val ctx = LocalContext.current
+    val approve by viewModel.pref(Prefs.APPROVE_NEW_DEVICES).collectAsState()
+    val devices by viewModel.trustedDevices.collectAsState()
+    var canLaunch by remember { mutableStateOf(canAutoLaunch(ctx)) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        val obs = LifecycleEventObserver { _, e -> if (e == Lifecycle.Event.ON_RESUME) canLaunch = canAutoLaunch(ctx) }
+        lifecycle.addObserver(obs)
+        onDispose { lifecycle.removeObserver(obs) }
+    }
+
+    SectionHeader("Devices · دستگاه‌ها")
+
+    val dlnaEnabled by viewModel.pref(Prefs.DLNA_ENABLED).collectAsState()
+    SettingSwitch(
+        title = "DLNA for Android phones · دریافت از گوشی اندرویدی",
+        description = "Lets Android phones and apps like VLC, BubbleUPnP or Web Video Caster send videos · پخش از گوشی‌های اندرویدی",
+        checked = dlnaEnabled,
+        onCheckedChange = { viewModel.set(Prefs.DLNA_ENABLED, it) }
+    )
+
+    SettingSwitch(
+        title = "Ask before new devices connect · تأیید دستگاه جدید",
+        description = "First connection needs approval on the TV, then it's remembered · فقط بار اول تأیید می‌خواهد",
+        checked = approve,
+        onCheckedChange = { viewModel.set(Prefs.APPROVE_NEW_DEVICES, it) }
+    )
+
+    if (approve && !canLaunch) {
+        ListItem(
+            modifier = Modifier
+                .dpadFocus(RectangleShape)
+                .clickable { _openOverlaySettings(ctx) },
+            headlineContent = { Text("Allow \"Display over other apps\" · اجازهٔ نمایش روی برنامه‌ها") },
+            supportingContent = {
+                Text("Needed so the approval prompt can appear while you use other apps · برای نمایش پیام تأیید روی برنامه‌های دیگر لازم است")
+            }
+        )
+    }
+
+    if (approve) {
+        if (devices.isEmpty()) {
+            ListItem(
+                headlineContent = { Text("No trusted devices yet · هنوز دستگاه تأییدشده‌ای نیست") },
+                supportingContent = { Text("They appear here after you choose \"Always allow\" · بعد از «همیشه اجازه بده» اینجا می‌آیند") }
+            )
+        } else {
+            devices.sortedByDescending { it.addedAt }.forEach { d ->
+                ListItem(
+                    headlineContent = { Text(d.name) },
+                    supportingContent = { if (d.model.isNotEmpty()) Text(d.model) },
+                    trailingContent = {
+                        OutlinedButton(
+                            onClick = { viewModel.forgetDevice(d.id) },
+                            modifier = Modifier.dpadFocus()
+                        ) { Text("Remove · حذف") }
+                    }
+                )
+            }
+            ListItem(
+                headlineContent = {
+                    OutlinedButton(
+                        onClick = { viewModel.forgetAllDevices() },
+                        modifier = Modifier.dpadFocus()
+                    ) { Text("Forget all · حذف همه") }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun UpdateSettings(viewModel: MainViewModel) {
+    val autoCheck by viewModel.pref(Prefs.AUTO_UPDATE_CHECK).collectAsState()
+    val status by viewModel.updateStatus.collectAsState()
+    val update by viewModel.update.collectAsState()
+
+    SectionHeader("Updates · به‌روزرسانی")
+
+    SettingSwitch(
+        title = "Check for updates automatically · بررسی خودکار",
+        description = "Looks for a new version on GitHub every 12 hours · هر ۱۲ ساعت نسخهٔ جدید را بررسی می‌کند",
+        checked = autoCheck,
+        onCheckedChange = { viewModel.set(Prefs.AUTO_UPDATE_CHECK, it) }
+    )
+
+    ListItem(
+        headlineContent = { Text("Version ${viewModel.currentVersion} · نسخهٔ فعلی") },
+        supportingContent = { if (status.isNotEmpty()) Text(status) },
+        trailingContent = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (update != null) {
+                    Button(onClick = { viewModel.installUpdate() }, modifier = Modifier.dpadFocus()) {
+                        Text("Install ${update?.version} · نصب")
+                    }
+                }
+                OutlinedButton(onClick = { viewModel.checkForUpdate() }, modifier = Modifier.dpadFocus()) {
+                    Text("Check now · بررسی")
+                }
+            }
         }
     )
 }

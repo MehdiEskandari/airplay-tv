@@ -116,6 +116,13 @@ object Prefs {
     val LAUNCH_ON_CONNECT = bool("launch_on_connect", true)
     val USB_ONLY = bool("usb_only", false, restart = true)
 
+    // ask on the TV before an unknown device connects; approved devices are remembered
+    val APPROVE_NEW_DEVICES = bool("approve_new_devices", true)
+    // DLNA receiver so Android phones can send videos too
+    val DLNA_ENABLED = bool("dlna_enabled", true, restart = true)
+    // look for new versions on GitHub Releases every 12 hours
+    val AUTO_UPDATE_CHECK = bool("auto_update_check", true)
+
     // subtitles for AirPlay video
     val SUB_FONTS = listOf("system", "vazirmatn", "sahel", "shabnam", "samim", "estedad", "lalezar")
     private val HEX_COLOR = Regex("#[0-9A-Fa-f]{6}")

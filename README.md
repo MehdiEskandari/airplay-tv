@@ -19,6 +19,10 @@
 - **تنظیمات کامل زیرنویس** با پیش‌نمایش زنده: ۶ فونت فارسی (وزیرمتن، ساحل، شبنم، صمیم، استعداد، لاله‌زار)، ضخیم، اندازه، رنگ، دورخط یا سایه، تیرگی پس‌زمینه، ارتفاع از پایین صفحه، و **هماهنگ کردن زمان زیرنویس** (جلو/عقب بردن با گام نیم‌ثانیه، بدون توقف فیلم)
 - **زوم با ریموت** هنگام پخش صفحه: دکمهٔ ▲ و ▼ برای حذف حاشیهٔ سیاه دور فیلم
 - **تصویر پایدارتر**: فریم‌ها هنگام شلوغی پردازنده دور ریخته نمی‌شوند (تصویر شطرنجی نمی‌شود)، و پیش‌فرض ۳۰ فریم در ثانیه برای کیفیت بهتر در هر فریم
+- **پخش از گوشی‌های اندرویدی (DLNA)**: با VLC، BubbleUPnP، Web Video Caster و هر برنامه‌ای که «Cast/DLNA» دارد. زیرنویس خودکار برای DLNA هم کار می‌کند.
+- **دستگاه‌های آشنا**: هر دستگاه جدید فقط بار اول روی تلویزیون تأیید می‌خواهد («همیشه اجازه بده»)، دفعه‌های بعد خودکار وصل می‌شود. فهرست دستگاه‌ها در تنظیمات قابل مدیریت است.
+- **همیشه آماده در پس‌زمینه**: اگر اندروید برنامه را ببندد دوباره خودش اجرا می‌شود، و بعد از روشن شدن تلویزیون یا به‌روزرسانی هم خودکار شروع می‌شود.
+- **به‌روزرسانی خودکار**: برنامه نسخهٔ جدید را از GitHub پیدا می‌کند و با یک دکمه نصب می‌کند.
 - پخش موسیقی با نام آهنگ و کاور
 - اجرای خودکار با روشن شدن تلویزیون
 - کنترل کامل با ریموت تلویزیون
@@ -60,7 +64,11 @@ adb shell am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -
 - **Subtitle settings** with live preview: 6 bundled Persian fonts, bold, size, color, outline/shadow, background, position, and instant timing offset
 - **Remote-controlled zoom** while mirroring (▲ / ▼) to crop black bars around a movie
 - **More stable picture**: the decoder input waits instead of dropping frames (no blocky artifacts), 30 fps default
-- Auto-start on boot, full D-pad navigation, optional PIN
+- **DLNA receiver** for Android phones (VLC, BubbleUPnP, Web Video Caster, …), with automatic subtitles
+- **Trusted devices**: approve a new device once on the TV, it connects automatically afterwards
+- **Always on**: restarts itself if Android stops it, and starts after boot and after updates
+- **Auto-update** from GitHub Releases
+- Full D-pad navigation, optional PIN
 
 ## Build
 
