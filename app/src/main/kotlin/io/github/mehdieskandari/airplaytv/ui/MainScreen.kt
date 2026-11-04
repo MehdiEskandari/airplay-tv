@@ -673,7 +673,7 @@ private fun OverviewContent(
             },
             statusText = when {
                 grant -> stringResource(R.string.local_network_label)
-                state == ServerState.RUNNING -> "Ready for AirPlay & DLNA · آمادهٔ اتصال"
+                state == ServerState.RUNNING -> "Ready for AirPlay & DLNA · آماده برای اتصال"
                 state == ServerState.ERROR -> stringResource(R.string.error_label)
                 else -> "Stopped · متوقف"
             },

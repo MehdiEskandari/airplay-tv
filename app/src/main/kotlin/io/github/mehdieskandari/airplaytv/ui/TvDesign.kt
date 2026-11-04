@@ -209,7 +209,7 @@ fun TvHome(
             HowToCard(
                 Icons.Default.Laptop, "Mac",
                 "Control Center → Screen Mirroring",
-                "یا دکمهٔ AirPlay داخل ویدیو",
+                "یا دکمه AirPlay داخل ویدیو",
                 Modifier.weight(1f)
             )
             HowToCard(

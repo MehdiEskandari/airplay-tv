@@ -867,9 +867,9 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
 
     SettingChips(
         title = "Size · اندازه",
-        description = "Text size · اندازهٔ متن",
+        description = "Text size · اندازه متن",
         value = style.sizeSp.toString(),
-        options = listOf(20, 24, 28, 32, 36, 42, 48, 56, 64).map { it.toString() to it.toString() },
+        options = listOf(20, 24, 28, 30, 32, 36, 42, 48, 56, 64).map { it.toString() to it.toString() },
         onValueChange = { viewModel.set(Prefs.SUB_SIZE, it.toInt()) }
     )
 
@@ -911,7 +911,7 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
     )
 
     SettingChips(
-        title = "Edge · حاشیهٔ حروف",
+        title = "Edge · حاشیه حروف",
         description = "Makes text readable on bright scenes · خوانایی روی صحنه‌های روشن",
         value = style.edge,
         options = listOf("outline" to "دورخط", "shadow" to "سایه", "none" to "هیچ"),
@@ -1029,7 +1029,7 @@ private fun DeviceSettings(viewModel: MainViewModel) {
             modifier = Modifier
                 .dpadFocus(RectangleShape)
                 .clickable { _openOverlaySettings(ctx) },
-            headlineContent = { Text("Allow \"Display over other apps\" · اجازهٔ نمایش روی برنامه‌ها") },
+            headlineContent = { Text("Allow \"Display over other apps\" · اجازه نمایش روی برنامه‌ها") },
             supportingContent = {
                 Text("Needed so the approval prompt can appear while you use other apps · برای نمایش پیام تأیید روی برنامه‌های دیگر لازم است")
             }
@@ -1077,13 +1077,13 @@ private fun UpdateSettings(viewModel: MainViewModel) {
 
     SettingSwitch(
         title = "Check for updates automatically · بررسی خودکار",
-        description = "Looks for a new version on GitHub every 12 hours · هر ۱۲ ساعت نسخهٔ جدید را بررسی می‌کند",
+        description = "Looks for a new version on GitHub every 12 hours · هر ۱۲ ساعت نسخه جدید را بررسی می‌کند",
         checked = autoCheck,
         onCheckedChange = { viewModel.set(Prefs.AUTO_UPDATE_CHECK, it) }
     )
 
     ListItem(
-        headlineContent = { Text("Version ${viewModel.currentVersion} · نسخهٔ فعلی") },
+        headlineContent = { Text("Version ${viewModel.currentVersion} · نسخه فعلی") },
         supportingContent = { if (status.isNotEmpty()) Text(status) },
         trailingContent = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

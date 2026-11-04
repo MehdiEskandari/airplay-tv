@@ -68,7 +68,7 @@ class UpdateManager(private val context: Context, private val scope: CoroutineSc
         if (isNewer(rel.version, currentVersion)) {
             // a version the user postponed only reappears on manual checks
             if (manual || prefs.getString(KEY_SKIPPED, "") != rel.version) _available.value = rel
-            _status.value = "New version ${rel.version} · نسخهٔ جدید ${rel.version}"
+            _status.value = "New version ${rel.version} · نسخه جدید ${rel.version}"
         } else {
             _available.value = null
             _status.value = "Up to date ($currentVersion) · به‌روز است"

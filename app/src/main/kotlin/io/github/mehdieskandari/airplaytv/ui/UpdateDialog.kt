@@ -34,10 +34,10 @@ fun UpdateDialog(viewModel: MainViewModel, hidden: Boolean) {
     LaunchedEffect(r) { runCatching { focus.requestFocus() } }
     AlertDialog(
         onDismissRequest = { if (progress == null) viewModel.postponeUpdate() },
-        title = { Text("Update available · نسخهٔ جدید ${r.version}") },
+        title = { Text("Update available · نسخه جدید ${r.version}") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("نسخهٔ فعلی: ${viewModel.currentVersion}  →  ${r.version}")
+                Text("نسخه فعلی: ${viewModel.currentVersion}  →  ${r.version}")
                 val notes = r.notes.lineSequence()
                     .map { it.trim().removePrefix("#").trim() }
                     .filter { it.isNotEmpty() && !it.startsWith("---") }
@@ -64,7 +64,7 @@ fun UpdateDialog(viewModel: MainViewModel, hidden: Boolean) {
         },
         dismissButton = {
             TextButton(onClick = { viewModel.postponeUpdate() }, enabled = progress == null) {
-                Text("Later · بعداً")
+                Text("Later · بعدا")
             }
         }
     )
