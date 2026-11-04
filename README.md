@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/art/icon.png" width="128" alt="AirPlay TV icon"></p>
+
 # AirPlay TV
 
 [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
