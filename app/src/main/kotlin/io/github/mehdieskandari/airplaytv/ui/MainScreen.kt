@@ -538,7 +538,19 @@ fun MainScreen(
             onPip = onPip
         )
     } else {
+        val tvLayout = isTv()
         Scaffold(
+            modifier = if (tvLayout) Modifier.tvBackdrop() else Modifier,
+            containerColor = if (tvLayout) Color.Transparent else MaterialTheme.colorScheme.background,
+            topBar = {
+                if (tvLayout) {
+                    TvTabBar(
+                        labels = Tab.entries.map { stringResource(it.labelRes) },
+                        selected = tab.ordinal,
+                        onSelect = { tab = Tab.entries[it] }
+                    )
+                }
+            },
             bottomBar = {
                 Column {
                     AudioMiniController(
@@ -546,7 +558,7 @@ fun MainScreen(
                         visible = audioOnly && connections > 0 && tab != Tab.OVERVIEW,
                         onClick = { tab = Tab.OVERVIEW }
                     )
-                    NavigationBar {
+                    if (!tvLayout) NavigationBar {
                         Tab.entries.forEach { t ->
                             NavigationBarItem(
                                 selected = tab == t,
@@ -635,6 +647,44 @@ private fun OverviewContent(
     val startFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         if (tv) startFocus.requestFocus()
+    }
+
+    // tvOS-style home while nothing is connected
+    val idleOnTv = tv && !(showAudioMode && state == ServerState.RUNNING && connections > 0) &&
+        (state != ServerState.RUNNING || connections == 0) && !idlePreview
+    if (idleOnTv) {
+        val settingsAction = localNetwork == LocalNetworkAccess.SETTINGS
+        val (icon, label, action) = when {
+            grant -> Triple(
+                if (settingsAction) Icons.Default.Settings else Icons.Default.LockOpen,
+                if (settingsAction) R.string.btn_open_settings else R.string.btn_allow,
+                onLocalNetwork
+            )
+            state == ServerState.RUNNING -> Triple(Icons.Default.Stop, R.string.btn_stop, viewModel::stopServer)
+            else -> Triple(Icons.Default.PlayArrow, R.string.btn_start, viewModel::startServer)
+        }
+        TvHome(
+            name = serverName,
+            status = when {
+                grant -> TvStatus.ATTENTION
+                state == ServerState.RUNNING -> TvStatus.READY
+                state == ServerState.ERROR -> TvStatus.ERROR
+                else -> TvStatus.STOPPED
+            },
+            statusText = when {
+                grant -> stringResource(R.string.local_network_label)
+                state == ServerState.RUNNING -> "Ready for AirPlay & DLNA · آمادهٔ اتصال"
+                state == ServerState.ERROR -> stringResource(R.string.error_label)
+                else -> "Stopped · متوقف"
+            },
+            message = if (grant) stringResource(R.string.local_network_desc)
+                else if (state == ServerState.ERROR) stringResource(R.string.error_starting_server) else null,
+            actionLabel = stringResource(label),
+            actionIcon = icon,
+            onAction = action,
+            actionModifier = Modifier.focusRequester(startFocus)
+        )
+        return
     }
 
     Column(modifier = Modifier.fillMaxSize()) {

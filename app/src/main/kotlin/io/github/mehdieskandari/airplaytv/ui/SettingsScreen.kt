@@ -24,6 +24,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -88,9 +97,13 @@ fun SettingsScreen(viewModel: MainViewModel) {
         Prefs.OFF to stringResource(R.string.chip_off),
     )
 
+    val tvLayout = isTv()
+    MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(surface = Color.Transparent)) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .then(if (tvLayout) Modifier.fillMaxWidth(0.74f) else Modifier.fillMaxWidth())
+            .fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .padding(vertical = 8.dp)
     ) {
@@ -454,6 +467,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
             )
         }
     }
+    }
+    }
 }
 
 private fun canAutoLaunch(ctx: Context): Boolean =
@@ -473,9 +488,9 @@ private fun _openOverlaySettings(ctx: Context) {
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        style = MaterialTheme.typography.titleMedium,
+        color = io.github.mehdieskandari.airplaytv.ui.theme.TvColors.SecondaryLabel,
+        modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 28.dp, bottom = 8.dp)
     )
 }
 
@@ -582,7 +597,13 @@ private fun SettingTextField(
     description: String? = null,
     range: IntRange? = null
 ) {
+    // tv: a row that opens an edit dialog, so focusing it doesn't pop up the keyboard
+    if (isTv()) {
+        SettingTextRow(label, value, onCommit, description, range)
+        return
+    }
     var text by remember(value) { mutableStateOf(value) }
+    val focusManager = LocalFocusManager.current
     val valid = range == null || text.toIntOrNull()?.let { it in range } == true
     fun save() {
         if (valid && text != value) onCommit(text)
@@ -604,6 +625,15 @@ private fun SettingTextField(
             .padding(horizontal = 16.dp)
             .padding(bottom = 8.dp)
             .onFocusChanged { if (!it.isFocused) save() }
+            // on a TV remote, up/down leave the field instead of moving the cursor
+            .onPreviewKeyEvent { e ->
+                if (e.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                when (e.key) {
+                    Key.DirectionDown -> { save(); focusManager.moveFocus(FocusDirection.Down) }
+                    Key.DirectionUp -> { save(); focusManager.moveFocus(FocusDirection.Up) }
+                    else -> false
+                }
+            }
     )
 }
 
@@ -733,6 +763,7 @@ private fun <T> SettingSegmented(
     )
 }
 
+// tvOS settings row: turns white with dark text when focused
 @Composable
 private fun SettingSwitch(
     title: String,
@@ -740,13 +771,29 @@ private fun SettingSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    var focused by remember { mutableStateOf(false) }
+    val tv = io.github.mehdieskandari.airplaytv.ui.theme.TvColors
+    val shape = RoundedCornerShape(14.dp)
     ListItem(
         modifier = Modifier
-            .dpadFocus(RectangleShape)
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .onFocusChanged { focused = it.isFocused }
+            .dpadFocus(shape, lift = 1.02f)
+            .clip(shape)
             .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),
-        headlineContent = { Text(title) },
+        colors = ListItemDefaults.colors(
+            containerColor = if (focused) tv.Focus else Color.White.copy(alpha = 0.06f),
+            headlineColor = if (focused) tv.OnFocus else tv.Label,
+            supportingColor = if (focused) Color(0xFF48484A) else tv.SecondaryLabel,
+        ),
+        headlineContent = { Text(title, style = MaterialTheme.typography.titleMedium) },
         supportingContent = { Text(description) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = null) }
+        trailingContent = {
+            Switch(
+                checked = checked, onCheckedChange = null,
+                colors = SwitchDefaults.colors(checkedTrackColor = tv.Green, checkedThumbColor = Color.White)
+            )
+        }
     )
 }
 
@@ -1051,4 +1098,71 @@ private fun UpdateSettings(viewModel: MainViewModel) {
             }
         }
     )
+}
+
+@Composable
+private fun SettingTextRow(
+    label: String,
+    value: String,
+    onCommit: (String) -> Unit,
+    description: String?,
+    range: IntRange?
+) {
+    var editing by remember { mutableStateOf(false) }
+    var focused by remember { mutableStateOf(false) }
+    val tv = io.github.mehdieskandari.airplaytv.ui.theme.TvColors
+    val shape = RoundedCornerShape(14.dp)
+    ListItem(
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .onFocusChanged { focused = it.isFocused }
+            .dpadFocus(shape, lift = 1.02f)
+            .clip(shape)
+            .clickable { editing = true },
+        colors = ListItemDefaults.colors(
+            containerColor = if (focused) tv.Focus else Color.White.copy(alpha = 0.06f),
+            headlineColor = if (focused) tv.OnFocus else tv.Label,
+            supportingColor = if (focused) Color(0xFF48484A) else tv.SecondaryLabel,
+            trailingIconColor = if (focused) tv.OnFocus else tv.SecondaryLabel,
+        ),
+        headlineContent = { Text(label, style = MaterialTheme.typography.titleMedium) },
+        supportingContent = description?.let { { Text(it) } },
+        trailingContent = { Text(value, style = MaterialTheme.typography.titleMedium, color = if (focused) tv.OnFocus else tv.SecondaryLabel) }
+    )
+    if (editing) {
+        var text by remember { mutableStateOf(value) }
+        val valid = range == null || text.toIntOrNull()?.let { it in range } == true
+        val fieldFocus = remember { androidx.compose.ui.focus.FocusRequester() }
+        LaunchedEffect(Unit) { runCatching { fieldFocus.requestFocus() } }
+        AlertDialog(
+            onDismissRequest = { editing = false },
+            title = { Text(label) },
+            text = {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = if (range == null) it else it.filter { c -> c.isDigit() }.take(6) },
+                    singleLine = true,
+                    isError = !valid,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = if (range == null) KeyboardType.Text else KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(onDone = {
+                        if (valid) { if (text != value) onCommit(text); editing = false }
+                    }),
+                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { if (valid) { if (text != value) onCommit(text); editing = false } },
+                    enabled = valid,
+                    modifier = Modifier.dpadFocus(CircleShape)
+                ) { Text("Save · ذخیره") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editing = false }, modifier = Modifier.dpadFocus(CircleShape)) { Text("Cancel · لغو") }
+            }
+        )
+    }
 }
