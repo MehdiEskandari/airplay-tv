@@ -139,6 +139,9 @@ fun SubtitleText(text: String, style: SubtitleStyle, modifier: Modifier = Modifi
 @Composable
 fun SubtitleOverlay(text: String, style: SubtitleStyle, modifier: Modifier = Modifier) {
     if (text.isBlank() || !style.enabled) return
+    // a phone is held close: same setting, smaller text
+    @Suppress("NAME_SHADOWING")
+    val style = if (isTv()) style else style.copy(sizeSp = (style.sizeSp * 0.65f).toInt().coerceAtLeast(12))
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         SubtitleText(
             text = text,

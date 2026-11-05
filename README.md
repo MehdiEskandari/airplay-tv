@@ -16,7 +16,7 @@
 | | |
 |---|---|
 | ![تنظیمات / Settings](docs/screenshots/settings.png) | ![تنظیمات زیرنویس / Subtitle settings](docs/screenshots/subtitles.png) |
-| ![تأیید دستگاه جدید / New device approval](docs/screenshots/approval.png) | |
+| ![تأیید دستگاه جدید / New device approval](docs/screenshots/approval.png) | ![گوشی اندرویدی / Android phone](docs/screenshots/phone.png) |
 
 ---
 
@@ -38,6 +38,8 @@
 - PIN اختیاری برای امنیت
 
 ## نصب
+
+> **Play Protect:** موقع نصب ممکن است پیام «App scan recommended» بیاید چون گوگل هنوز این برنامه را نمی‌شناسد. روی **Scan app** بزنید؛ بعد از بررسی، نصب ادامه پیدا می‌کند. (یا «Install without scanning».)
 
 1. فایل `AirPlay-TV-x.y.z.apk` را از صفحه [Releases](https://github.com/MehdiEskandari/airplay-tv/releases/latest) دانلود کنید.
 2. یکی از این روش‌ها:

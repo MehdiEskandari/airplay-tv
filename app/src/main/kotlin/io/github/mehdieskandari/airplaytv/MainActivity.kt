@@ -1,5 +1,7 @@
 package io.github.mehdieskandari.airplaytv
 
+import io.github.mehdieskandari.airplaytv.ui.isTvDevice
+
 import android.Manifest
 import android.app.PictureInPictureParams
 import android.content.ComponentName
@@ -220,6 +222,8 @@ class MainActivity : ComponentActivity() {
     // ask once to be left out of battery optimization so android doesn't stop the receiver
     @android.annotation.SuppressLint("BatteryLife")
     private fun _askBatteryExemptionOnce() {
+        // phones manage background work themselves; only TVs need the receiver kept alive
+        if (!isTvDevice()) return
         val sp = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
         if (sp.getBoolean("asked_battery_exemption", false)) return
         sp.edit().putBoolean("asked_battery_exemption", true).apply()

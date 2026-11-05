@@ -540,8 +540,8 @@ fun MainScreen(
     } else {
         val tvLayout = isTv()
         Scaffold(
-            modifier = if (tvLayout) Modifier.tvBackdrop() else Modifier,
-            containerColor = if (tvLayout) Color.Transparent else MaterialTheme.colorScheme.background,
+            modifier = Modifier.tvBackdrop(),
+            containerColor = Color.Transparent,
             topBar = {
                 if (tvLayout) {
                     TvTabBar(
@@ -558,7 +558,7 @@ fun MainScreen(
                         visible = audioOnly && connections > 0 && tab != Tab.OVERVIEW,
                         onClick = { tab = Tab.OVERVIEW }
                     )
-                    if (!tvLayout) NavigationBar {
+                    if (!tvLayout) NavigationBar(containerColor = Color.Black.copy(alpha = 0.55f)) {
                         Tab.entries.forEach { t ->
                             NavigationBarItem(
                                 selected = tab == t,
@@ -650,7 +650,7 @@ private fun OverviewContent(
     }
 
     // tvOS-style home while nothing is connected
-    val idleOnTv = tv && !(showAudioMode && state == ServerState.RUNNING && connections > 0) &&
+    val idleOnTv = !(showAudioMode && state == ServerState.RUNNING && connections > 0) &&
         (state != ServerState.RUNNING || connections == 0) && !idlePreview
     if (idleOnTv) {
         val settingsAction = localNetwork == LocalNetworkAccess.SETTINGS

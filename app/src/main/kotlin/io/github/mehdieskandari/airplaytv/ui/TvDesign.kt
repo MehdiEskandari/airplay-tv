@@ -9,6 +9,9 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -133,7 +136,8 @@ fun TvButton(
             .onFocusChanged { focused = it.isFocused }
             .clickable(enabled = enabled, interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClick)
             .padding(horizontal = 28.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         if (icon != null) {
             Icon(icon, null, tint = fg, modifier = Modifier.size(22.dp))
@@ -171,64 +175,74 @@ fun TvHome(
     onAction: () -> Unit,
     actionModifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 56.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column {
-            Text(
-                name,
-                style = MaterialTheme.typography.displayMedium,
-                color = Color.White,
-            )
-            Spacer(Modifier.height(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val dot = when (status) {
-                    TvStatus.READY -> TvColors.Green
-                    TvStatus.ERROR -> TvColors.Red
-                    TvStatus.ATTENTION -> TvColors.Orange
-                    TvStatus.STOPPED -> TvColors.TertiaryLabel
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // phones (narrow screens): stacked cards, scrollable, full-width button
+        val compact = maxWidth < 600.dp
+        val header: @Composable () -> Unit = {
+            Column {
+                Text(
+                    name,
+                    style = if (compact) MaterialTheme.typography.displaySmall else MaterialTheme.typography.displayMedium,
+                    color = Color.White,
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val dot = when (status) {
+                        TvStatus.READY -> TvColors.Green
+                        TvStatus.ERROR -> TvColors.Red
+                        TvStatus.ATTENTION -> TvColors.Orange
+                        TvStatus.STOPPED -> TvColors.TertiaryLabel
+                    }
+                    Box(Modifier.size(12.dp).clip(CircleShape).background(dot))
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        statusText,
+                        style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
+                        color = TvColors.SecondaryLabel
+                    )
                 }
-                Box(Modifier.size(12.dp).clip(CircleShape).background(dot))
-                Spacer(Modifier.width(10.dp))
-                Text(statusText, style = MaterialTheme.typography.titleLarge, color = TvColors.SecondaryLabel)
-            }
-            if (!message.isNullOrBlank()) {
-                Spacer(Modifier.height(8.dp))
-                Text(message, style = MaterialTheme.typography.bodyLarge, color = TvColors.SecondaryLabel)
+                if (!message.isNullOrBlank()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(message, style = MaterialTheme.typography.bodyLarge, color = TvColors.SecondaryLabel)
+                }
             }
         }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.fillMaxWidth()) {
-            HowToCard(
-                Icons.Default.PhoneIphone, "iPhone · iPad",
-                "Control Center → Screen Mirroring → $name",
-                "کنترل سنتر ← اسکرین میرورینگ",
-                Modifier.weight(1f)
-            )
-            HowToCard(
-                Icons.Default.Laptop, "Mac",
-                "Control Center → Screen Mirroring",
-                "یا دکمه AirPlay داخل ویدیو",
-                Modifier.weight(1f)
-            )
-            HowToCard(
-                Icons.Default.Android, "Android",
-                "Cast from VLC, BubbleUPnP or Web Video Caster",
-                "پخش با برنامه‌های DLNA",
-                Modifier.weight(1f)
-            )
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TvButton(actionLabel, onAction, actionModifier, icon = actionIcon)
+        val cards = listOf(
+            Triple(Icons.Default.PhoneIphone, "iPhone · iPad", "Control Center → Screen Mirroring → $name") to "کنترل سنتر ← اسکرین میرورینگ",
+            Triple(Icons.Default.Laptop, "Mac", "Control Center → Screen Mirroring") to "یا دکمه AirPlay داخل ویدیو",
+            Triple(Icons.Default.Android, "Android", "Cast from VLC, BubbleUPnP or Web Video Caster") to "پخش با برنامه‌های DLNA",
+        )
+        if (compact) {
+            Column(
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                header()
+                Spacer(Modifier.height(6.dp))
+                cards.forEach { (c, fa) -> HowToCard(c.first, c.second, c.third, fa, Modifier.fillMaxWidth(), fixedHeight = false) }
+                Spacer(Modifier.height(6.dp))
+                TvButton(actionLabel, onAction, actionModifier.fillMaxWidth(), icon = actionIcon)
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 56.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                header()
+                Row(horizontalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.fillMaxWidth()) {
+                    cards.forEach { (c, fa) -> HowToCard(c.first, c.second, c.third, fa, Modifier.weight(1f)) }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TvButton(actionLabel, onAction, actionModifier, icon = actionIcon)
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun HowToCard(icon: ImageVector, title: String, en: String, fa: String, modifier: Modifier) {
-    TvCard(modifier.height(224.dp)) {
+private fun HowToCard(icon: ImageVector, title: String, en: String, fa: String, modifier: Modifier, fixedHeight: Boolean = true) {
+    TvCard(if (fixedHeight) modifier.height(224.dp) else modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(
                 Modifier.size(52.dp).clip(RoundedCornerShape(14.dp))
