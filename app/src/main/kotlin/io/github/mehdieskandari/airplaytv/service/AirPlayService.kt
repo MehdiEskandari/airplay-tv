@@ -33,6 +33,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 import io.github.mehdieskandari.airplaytv.MainActivity
+import io.github.mehdieskandari.airplaytv.AppLanguage
 import io.github.mehdieskandari.airplaytv.Prefs
 import io.github.mehdieskandari.airplaytv.R
 import io.github.mehdieskandari.airplaytv.changes
@@ -221,8 +222,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
             _pendingApproval.value = req
             log("Waiting for approval: ${req.name} ($model)")
             launchMainActivity()
-            val ok = runCatching { req.result.get(APPROVAL_TIMEOUT_S, java.util.concurrent.TimeUnit.SECONDS) }
-                .getOrDefault(false)
+            val ok = req.awaitResult(APPROVAL_TIMEOUT_S, java.util.concurrent.TimeUnit.SECONDS)
             _pendingApproval.value = null
             log(if (ok) "Approved: ${req.name}" else "Refused: ${req.name}")
             return ok
@@ -233,7 +233,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         val req = _pendingApproval.value ?: return
         if (allow && remember) trustedDevices.add(req.id, req.name, req.model)
         if (allow && !remember) allowedOnce[req.id] = System.currentTimeMillis()
-        req.result.complete(allow)
+        req.answer(allow)
     }
 
     override fun onClientRequest(deviceId: String, model: String, name: String): Boolean =
@@ -440,6 +440,12 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
             }
         }
         lifecycleScope.launch {
+            prefs.observe { this[Prefs.LANGUAGE] }.collect {
+                createNotificationChannel()
+                _updateMediaNotification()
+            }
+        }
+        lifecycleScope.launch {
             prefs.changes()
                 .filter { Prefs.all[it]?.restart == true }
                 .debounce(SERVER_RESTART_DEBOUNCE_MS)
@@ -448,6 +454,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         // null intent = the system restarted us after killing the process (START_STICKY)
         val restartedBySystem = intent == null && prefs[Prefs.RUN_IN_BACKGROUND]
         if (intent?.action == ACTION_START_SERVER || restartedBySystem) {
@@ -730,6 +737,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         log(message)
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun onDestroy() {
         stopServer()
         dacpPlayer.release()
@@ -1190,7 +1198,7 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channel = NotificationChannel(
             CHANNEL_ID,
-            getString(R.string.notification_channel),
+            AppLanguage.context(this).getString(R.string.notification_channel),
             NotificationManager.IMPORTANCE_LOW
         )
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
@@ -1220,8 +1228,9 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
         val info = _trackInfo.value
         val isAudio = _audioOnly.value && info.title.isNotEmpty()
 
+        val localized = AppLanguage.context(this)
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_media_play)
+            .setSmallIcon(R.drawable.ic_airplay_notification)
             .setContentIntent(pi)
             .setOngoing(true)
 
@@ -1235,17 +1244,17 @@ class AirPlayService : LifecycleService(), RaopCallbackHandler, LogListener {
                         .setShowActionsInCompactView(0, 1, 2)
                 )
                 // transport action buttons
-                builder.addAction(android.R.drawable.ic_media_previous, "Prev", _mediaAction(ACTION_PREV))
-                builder.addAction(android.R.drawable.ic_media_pause, "Pause", _mediaAction(ACTION_PLAY_PAUSE))
-                builder.addAction(android.R.drawable.ic_media_next, "Next", _mediaAction(ACTION_NEXT))
+                builder.addAction(android.R.drawable.ic_media_previous, localized.getString(R.string.media_previous), _mediaAction(ACTION_PREV))
+                builder.addAction(android.R.drawable.ic_media_pause, localized.getString(R.string.media_pause), _mediaAction(ACTION_PLAY_PAUSE))
+                builder.addAction(android.R.drawable.ic_media_next, localized.getString(R.string.media_next), _mediaAction(ACTION_NEXT))
             }
         } else {
             if (_lastPin != null) {
-                builder.setContentTitle(getString(R.string.notification_pin_title))
-                    .setContentText(getString(R.string.notification_pin_text, _lastPin))
+                builder.setContentTitle(localized.getString(R.string.notification_pin_title))
+                    .setContentText(localized.getString(R.string.notification_pin_text, _lastPin))
             } else {
-                builder.setContentTitle(getString(R.string.notification_title))
-                    .setContentText(getString(R.string.notification_text))
+                builder.setContentTitle(localized.getString(R.string.notification_title))
+                    .setContentText(localized.getString(R.string.notification_text))
             }
         }
         return builder.build()

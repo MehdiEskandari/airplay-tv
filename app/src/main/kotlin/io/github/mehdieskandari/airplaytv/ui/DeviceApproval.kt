@@ -9,6 +9,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import io.github.mehdieskandari.airplaytv.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,17 +40,16 @@ fun DeviceApprovalDialog(viewModel: MainViewModel) {
     AlertDialog(
         onDismissRequest = { viewModel.answerApproval(allow = false, remember = false) },
         properties = DialogProperties(dismissOnClickOutside = false),
-        title = { Text("New device · دستگاه جدید") },
+        title = { Text(stringResource(R.string.approval_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "«${r.name}» می‌خواهد به تلویزیون وصل شود",
+                    stringResource(R.string.approval_request, r.name, r.source),
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text("\"${r.name}\" wants to connect via ${r.source}")
                 if (r.model.isNotEmpty()) Text(r.model, style = MaterialTheme.typography.bodySmall)
                 Text(
-                    "اگر «همیشه» را بزنید، دفعه‌های بعد بدون سؤال وصل می‌شود ($secondsLeft)",
+                    stringResource(R.string.approval_remember, secondsLeft),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -58,15 +59,15 @@ fun DeviceApprovalDialog(viewModel: MainViewModel) {
                 Button(
                     onClick = { viewModel.answerApproval(allow = true, remember = true) },
                     modifier = Modifier.fillMaxWidth().focusRequester(focus)
-                ) { Text("Always allow · همیشه اجازه بده") }
+                ) { Text(stringResource(R.string.approval_always)) }
                 OutlinedButton(
                     onClick = { viewModel.answerApproval(allow = true, remember = false) },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text("Only this time · فقط این بار") }
+                ) { Text(stringResource(R.string.approval_once)) }
                 TextButton(
                     onClick = { viewModel.answerApproval(allow = false, remember = false) },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text("Deny · رد کن") }
+                ) { Text(stringResource(R.string.approval_deny)) }
             }
         }
     )

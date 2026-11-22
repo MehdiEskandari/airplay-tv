@@ -183,6 +183,7 @@ class AirPlayVideoPlayer(private val context: Context) {
         player?.volume = gain
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun setSkipSilence(enabled: Boolean) = mainHandler.post {
         player?.skipSilenceEnabled = enabled
     }
@@ -227,6 +228,7 @@ class AirPlayVideoPlayer(private val context: Context) {
         }
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     private fun _reportPlaybackInfo() {
         val p = player ?: return
         val durationMs = p.duration

@@ -73,6 +73,12 @@ object Prefs {
     fun forced(v: String) = when (v) { ON -> true; OFF -> false; else -> null }
 
     val SERVER_NAME = str("server_name", "AirPlay TV", restart = true)
+    const val THEME_TELI_DARK = "teli_dark"
+    const val THEME_TELI_LIGHT = "teli_light"
+    const val THEME_SOLID_DARK = "solid_dark"
+    val APPEARANCE = str("appearance", THEME_TELI_DARK) { it in setOf(THEME_TELI_DARK, THEME_TELI_LIGHT, THEME_SOLID_DARK) }
+    val LANGUAGE = str("language", "fa") { it in setOf("fa", "en", "mul") }
+    val LANGUAGE_SELECTED = bool("language_selected", false)
     val SERVER_PORT = int("server_port", 7000, 1..65535, restart = true)
     val AUTO_START = bool("auto_start", true)
     val BOOT_AUTO_START = bool("boot_auto_start", true)

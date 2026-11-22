@@ -176,16 +176,14 @@ class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app
         service?.answerApproval(allow, remember)
         _pendingApproval.value = null
     }
-    // app updates from GitHub Releases
+    // Direct updates use GitHub; store builds open the matching store client.
     private val _update = MutableStateFlow<io.github.mehdieskandari.airplaytv.service.AppRelease?>(null)
     val update: StateFlow<io.github.mehdieskandari.airplaytv.service.AppRelease?> = _update.asStateFlow()
-    private val _updateProgress = MutableStateFlow<Float?>(null)
-    val updateProgress: StateFlow<Float?> = _updateProgress.asStateFlow()
     private val _updateStatus = MutableStateFlow("")
     val updateStatus: StateFlow<String> = _updateStatus.asStateFlow()
     val currentVersion: String get() = service?.updater?.currentVersion ?: ""
     fun checkForUpdate() { service?.updater?.checkNow() }
-    fun installUpdate() { service?.updater?.downloadAndInstall() }
+    fun installUpdate() { service?.updater?.openRelease() }
     fun postponeUpdate() { service?.updater?.postpone() }
 
     fun forgetDevice(id: String) { service?.trustedDevices?.remove(id) }
@@ -266,7 +264,7 @@ class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        val chooserTitle = ctx.getString(io.github.mehdieskandari.airplaytv.R.string.export_logs_chooser_title)
+        val chooserTitle = io.github.mehdieskandari.airplaytv.AppLanguage.context(ctx).getString(io.github.mehdieskandari.airplaytv.R.string.export_logs_chooser_title)
         ctx.startActivity(Intent.createChooser(intent, chooserTitle).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
@@ -301,7 +299,6 @@ class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app
             launch { svc.trustedDevices.devices.collect { _trustedDevices.value = it } }
             launch { svc.pendingApproval.collect { _pendingApproval.value = it } }
             launch { svc.updater.available.collect { _update.value = it } }
-            launch { svc.updater.progress.collect { _updateProgress.value = it } }
             launch { svc.updater.status.collect { _updateStatus.value = it } }
         }
         updateFromService()

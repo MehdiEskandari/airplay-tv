@@ -5,6 +5,7 @@ import io.github.mehdieskandari.airplaytv.ui.isTvDevice
 import android.Manifest
 import android.app.PictureInPictureParams
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
@@ -17,15 +18,21 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.SideEffect
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import io.github.mehdieskandari.airplaytv.service.AirPlayService
 import io.github.mehdieskandari.airplaytv.ui.MainScreen
+import io.github.mehdieskandari.airplaytv.ui.LanguagePicker
 import io.github.mehdieskandari.airplaytv.ui.theme.AirPlayTheme
 import io.github.mehdieskandari.airplaytv.viewmodel.LocalNetworkAccess
 import io.github.mehdieskandari.airplaytv.viewmodel.MainViewModel
@@ -36,6 +43,17 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.context(newBase))
+    }
+
+    fun chooseLanguage(language: String) {
+        val prefs = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
+        Prefs.LANGUAGE.write(prefs, language)
+        Prefs.LANGUAGE_SELECTED.write(prefs, true)
+        recreate()
+    }
 
     private val viewModel: MainViewModel by viewModels()
     private var service: AirPlayService? = null
@@ -65,7 +83,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = false
 
         val missing = buildList {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !_granted(Manifest.permission.POST_NOTIFICATIONS)) {
@@ -73,8 +95,10 @@ class MainActivity : ComponentActivity() {
             }
             if (!hasLocalNetwork()) add(Manifest.permission.ACCESS_LOCAL_NETWORK)
         }
-        if (missing.isNotEmpty()) permissions.launch(missing.toTypedArray())
-        _askBatteryExemptionOnce()
+        if (getSharedPreferences(Prefs.NAME, MODE_PRIVATE)[Prefs.LANGUAGE_SELECTED]) {
+            if (missing.isNotEmpty()) permissions.launch(missing.toTypedArray())
+            _askBatteryExemptionOnce()
+        }
 
         bindService(Intent(this, AirPlayService::class.java), connection, BIND_AUTO_CREATE)
 
@@ -99,7 +123,7 @@ class MainActivity : ComponentActivity() {
         }
 
         // auto-enter pre-declared in pip params
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     combine(
@@ -112,8 +136,22 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            AirPlayTheme {
-                MainScreen(
+            val appearance by viewModel.pref(Prefs.APPEARANCE).collectAsState()
+            SideEffect {
+                WindowInsetsControllerCompat(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = appearance == Prefs.THEME_TELI_LIGHT
+                    isAppearanceLightNavigationBars = appearance == Prefs.THEME_TELI_LIGHT
+                }
+                // Android 6/7 cannot draw dark navigation buttons on a light background.
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    @Suppress("DEPRECATION")
+                    window.navigationBarColor = android.graphics.Color.BLACK
+                }
+            }
+            AirPlayTheme(appearance = appearance) {
+                val languageSelected by viewModel.pref(Prefs.LANGUAGE_SELECTED).collectAsState()
+                if (!languageSelected) LanguagePicker(onConfirm = ::chooseLanguage)
+                else MainScreen(
                     viewModel = viewModel,
                     isInPip = isInPip.value,
                     onSurfaceAvailable = { viewModel.onSurfaceAvailable(it) },
@@ -130,7 +168,7 @@ class MainActivity : ComponentActivity() {
 
     private fun _autoStart() {
         val svc = service ?: return
-        if (viewModel.pref(Prefs.AUTO_START).value && svc.serverState.value == AirPlayService.ServerState.STOPPED && hasLocalNetwork()) {
+        if (viewModel.pref(Prefs.LANGUAGE_SELECTED).value && viewModel.pref(Prefs.AUTO_START).value && svc.serverState.value == AirPlayService.ServerState.STOPPED && hasLocalNetwork()) {
             viewModel.startServer()
         }
     }
@@ -171,10 +209,12 @@ class MainActivity : ComponentActivity() {
     }
 
     fun enterPip() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            !packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) return
         enterPictureInPictureMode(_pipParams())
     }
 
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.O)
     private fun _pipParams(): PictureInPictureParams {
         val aspect = if (viewModel.videoPlaybackActive.value) viewModel.videoPlaybackAspect.value
             else viewModel.videoAspect.value

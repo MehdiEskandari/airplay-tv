@@ -1,204 +1,282 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AirPlay TV</string>
-
-    <!-- Notification -->
-    <string name="notification_channel">AirPlay Service</string>
-    <string name="notification_title">AirPlay TV is running</string>
-    <string name="notification_text">Accepting AirPlay connections</string>
-    <string name="notification_pin_title">AirPlay PIN Required</string>
-    <string name="notification_pin_text">PIN: %1$s</string>
-    <string name="stop_service">Stop</string>
-
-    <!-- Tabs -->
-    <string name="tab_overview">Overview</string>
-    <string name="tab_logs">Logs</string>
-    <string name="tab_settings">Settings</string>
-
-    <!-- Overview -->
-    <string name="server_stopped">Server stopped</string>
-    <string name="waiting_for_connection">Waiting for connection...</string>
-    <string name="waiting_for_playback">Press start on the sender...</string>
-    <string name="error_starting_server">Error starting server</string>
-    <string name="connected_count">%d connected</string>
-    <string name="error_label">Error</string>
-    <string name="stopped_label">Stopped</string>
-    <string name="btn_start">Start</string>
-    <string name="btn_stop">Stop</string>
-    <string name="btn_allow">Allow</string>
-    <string name="btn_open_settings">Open settings</string>
-    <string name="local_network_label">Nearby devices access needed</string>
-    <string name="local_network_desc">Allow access to nearby devices so AirPlay devices can find and connect to this device</string>
-    <string name="unknown_track">Unknown</string>
-
-    <!-- Content descriptions -->
-    <string name="cd_pip">Picture-in-Picture</string>
-    <string name="cd_fullscreen">Fullscreen</string>
-    <string name="cd_exit_fullscreen">Exit fullscreen</string>
-    <string name="cd_cover_art">Cover art</string>
-    <string name="cd_play_pause">Play/Pause</string>
-    <string name="cd_rewind">Rewind</string>
-    <string name="cd_fast_forward">Fast forward</string>
-    <string name="volume_server">Receiver volume</string>
-    <string name="volume_client">Sender volume</string>
-    <string name="volume_value">%1$d%%</string>
-    <string name="cd_download">Download video</string>
-    <string name="cd_cancel_download">Cancel download</string>
-
-    <!-- Video download -->
-    <string name="download_saved">Saved to %1$s</string>
-    <string name="download_failed">Download failed</string>
-
-    <!-- Player gestures -->
-    <string name="gesture_seek_seconds">%1$d seconds</string>
-    <string name="seconds_short">%1$ds</string>
-    <string name="select_playback_speed">Playback speed</string>
-    <string name="cd_reset_speed">Reset speed</string>
-    <string name="skip_silence">Skip silence</string>
-
-    <!-- Player controls -->
-    <string name="cd_back">Back</string>
-    <string name="cd_copy_url">Copy video URL</string>
-    <string name="cd_rotate">Rotate screen</string>
-    <string name="cd_lock_controls">Lock controls</string>
-    <string name="cd_unlock_controls">Unlock controls</string>
-    <string name="scale_best_fit">Best fit</string>
-    <string name="scale_stretch">Stretch</string>
-    <string name="scale_crop">Crop</string>
-    <string name="scale_hundred_percent">100%</string>
-
-    <!-- Dialogs -->
-    <string name="dialog_pin_title">AirPlay PIN</string>
-    <string name="btn_ok">OK</string>
-
-    <!-- Logs screen -->
-    <string name="btn_export">Export</string>
-    <string name="btn_clear">Clear</string>
-    <string name="export_logs_chooser_title">Export logs</string>
-
-    <!-- Settings sections -->
-    <string name="section_server">Server</string>
-    <string name="section_connection">Connection</string>
-    <string name="section_display">Display</string>
-    <string name="section_decode">Decode</string>
-    <string name="section_developer">Developer</string>
-
-    <!-- Settings: Server -->
-    <string name="setting_server_name">Server name</string>
-    <string name="setting_server_port">Server port</string>
-    <string name="setting_auto_start">Start server automatically</string>
-    <string name="setting_auto_start_desc">Start the AirPlay server when the app launches</string>
-    <string name="setting_boot_auto_start">Start server at boot</string>
-    <string name="setting_boot_auto_start_desc">Start the AirPlay server when the device starts</string>
-    <string name="setting_run_in_background">Run in background</string>
-    <string name="setting_run_in_background_desc">Keep the server running after leaving the app</string>
-
-    <!-- Settings: Connection -->
-    <string name="setting_require_pin">Require PIN (Beta)</string>
-    <string name="setting_require_pin_desc">Require 4-digit PIN for each new connection</string>
-    <string name="setting_allow_new_conn">Allow new connections</string>
-    <string name="setting_allow_new_conn_desc">Drop current sender when a new one connects</string>
-
-    <!-- Settings: Display -->
-    <string name="setting_idle_preview">Idle screen preview</string>
-    <string name="setting_idle_preview_desc">Show video surface while waiting for a connection</string>
-    <string name="setting_auto_fullscreen">Enter fullscreen automatically</string>
-    <string name="setting_auto_fullscreen_desc">Enter fullscreen when a sender connects</string>
-    <string name="setting_keep_screen_on">Keep screen on</string>
-    <string name="setting_keep_screen_on_desc">Prevent sleeping while a sender is connected</string>
-    <string name="setting_advertise_video">Advertise AirPlay video support</string>
-    <string name="setting_advertise_video_desc">When off, videos are cast as audio only streams</string>
-    <string name="setting_advertise_mirroring">Advertise AirPlay mirroring support</string>
-    <string name="setting_advertise_mirroring_desc">When off, the device is hidden from mirroring</string>
-    <string name="setting_advertise_audio">Advertise AirPlay audio support</string>
-    <string name="setting_advertise_audio_desc">When off, the device can only be used for mirroring and will be hidden from media players</string>
-    <string name="setting_alac">Advertise ALAC codec</string>
-    <string name="setting_alac_desc">Offer ALAC in the mDNS record; used for music streaming</string>
-    <string name="setting_aac">Advertise AAC codec</string>
-    <string name="setting_aac_desc">Offer AAC-ELD/AAC-LC in the mDNS record; used for screen mirroring audio</string>
-    <string name="setting_launch_on_connect">Open this application on connect</string>
-    <string name="setting_launch_on_connect_desc">Show the screen when a sender connects</string>
-    <string name="setting_launch_on_connect_no_permission">Tap to grant Display over other apps permission</string>
-    <string name="setting_discovery">Discoverable over</string>
-    <string name="setting_discovery_all_desc">Advertise on all usable interfaces. Uses NsdManager.</string>
-    <string name="setting_discovery_usb_desc">Only advertise over USB tethering to enforce wired connection. Uses custom mDNS responder.</string>
-    <string name="chip_all_networks">All networks</string>
-    <string name="chip_usb_only">USB only</string>
-    <string name="setting_resolution">Resolution</string>
-    <string name="setting_resolution_desc">Video resolution advertised to senders</string>
-    <string name="setting_resolution_placeholder">[W]x[H]</string>
-    <string name="setting_resolution_width">Width</string>
-    <string name="setting_resolution_height">Height</string>
-    <string name="setting_max_fps">Maximum FPS</string>
-    <string name="setting_max_fps_desc">Maximum frame rate advertised to senders</string>
-    <string name="setting_max_fps_placeholder">FPS</string>
-    <string name="setting_overscanned">Overscanned</string>
-    <string name="setting_overscanned_desc">Add pixel boundary for full-screen overscan displays</string>
-    <string name="chip_custom">Custom</string>
-    <string name="chip_device_portrait">Portrait</string>
-    <string name="chip_device_landscape">Landscape</string>
-
-    <!-- Settings: Decode -->
-    <string name="setting_h265">H.265 (HEVC)</string>
-    <string name="setting_h265_desc">Auto only uses H.265 decoders known to work</string>
-    <string name="setting_enforce_sdr">MediaFormat.KEY_COLOR_TRANSFER</string>
-    <string name="setting_enforce_sdr_desc">Tag video as limited SDR; disable to allow HDR sources to pass through</string>
-    <string name="setting_sw_alac">Force software ALAC decoder</string>
-    <string name="setting_sw_alac_desc">Always use software ALAC decoder instead of system decoder, may affect latency</string>
-    <string name="setting_sw_aac">Force software AAC decoder</string>
-    <string name="setting_sw_aac_desc">Always use software AAC decoder instead of system decoder, may affect latency</string>
-    <string name="setting_sync_client_volume">Sync sender volume</string>
-    <string name="setting_sync_client_volume_desc">Use sender volume for receiver volume automatically</string>
-
-    <!-- Settings: Developer -->
-    <string name="setting_developer_options">Developer options</string>
-    <string name="setting_developer_options_desc">Show options for advanced users</string>
-    <string name="setting_key_allow_frame_drop">MediaFormat.KEY_ALLOW_FRAME_DROP</string>
-    <string name="setting_key_allow_frame_drop_desc">Allow video decoders to drop frames internally to keep up on Android 10+</string>
-    <string name="setting_realtime_decoder_priority">MediaFormat.KEY_PRIORITY</string>
-    <string name="setting_realtime_decoder_priority_desc">Request real-time scheduling for audio decoder</string>
-    <string name="setting_operating_rate">MediaFormat.KEY_OPERATING_RATE</string>
-    <string name="setting_operating_rate_desc">Request maximum operating rate from decoder</string>
-    <string name="chip_auto">Auto</string>
-    <string name="chip_on">On</string>
-    <string name="chip_off">Off</string>
-    <string name="setting_low_latency">Low latency</string>
-    <string name="setting_low_latency_desc">Use low-latency audio decoding for output; this uses more power and CPU</string>
-    <string name="setting_scheduled_output_buffer_release">Aligned frame pacing</string>
-    <string name="setting_scheduled_output_buffer_release_desc">Schedule each decoded frame to the VSYNC matching its presentation timestamp</string>
-    <string name="setting_audio_delay">Override audio delay</string>
-    <string name="setting_audio_delay_desc">Set a custom audio latency reported to sender</string>
-    <string name="audio_delay_value">%dms</string>
-    <string name="setting_audio_auto_buffer">Automatic software audio buffer size</string>
-    <string name="setting_audio_auto_buffer_desc">Adaptively tune the software audio buffer according to network conditions and device performance; slider adjusts how much jitter the buffer can absorb</string>
-    <string name="audio_adaptive_value">%1$d%% (%2$s)</string>
-    <string-array name="audio_adaptive_step_names">
-        <item>Lowest Latency</item>
-        <item>Lower Latency</item>
-        <item>Balanced</item>
-        <item>Better Stability</item>
-        <item>Best Stability</item>
-    </string-array>
-    <string name="setting_audio_cushion_ms">Software audio buffer (ms)</string>
-    <string name="setting_audio_cushion_ms_desc">Buffer to absorb network and decoder jitter: shorter duration means lower latency; longer duration means fewer glitches</string>
-    <string name="setting_oboe_buffer_frames">Hardware output buffer (frames)</string>
-    <string name="setting_oboe_buffer_frames_desc">Stream buffer between this app and the audio device to absorb CPU scheduling jitter only. Keep at 0 for automatic sizing.</string>
-    <string name="setting_debug_overlay">Show debug overlay</string>
-    <string name="setting_debug_overlay_desc">Overlay stream stats on video: codec, FPS, bitrate, jitter, frames, drops</string>
-    <string name="setting_benchmark_log">Enable debug logging</string>
-    <string name="setting_benchmark_log_desc">Log stream stats to logcat: codec, FPS, bitrate, jitter, frames, drops</string>
-
-    <!-- Debug overlay -->
-    <string name="debug_section_video">Video</string>
-    <string name="debug_section_audio">Audio</string>
-    <string name="debug_section_network">Network</string>
+    <string name="app_name">ایرپلی تی‌وی</string>
+    <string name="notification_channel">سرویس ایرپلی</string>
+    <string name="notification_title">ایرپلی تی‌وی فعال است</string>
+    <string name="notification_text">آماده دریافت اتصال ایرپلی</string>
+    <string name="notification_pin_title">رمز اتصال ایرپلی</string>
+    <string name="notification_pin_text">رمز: %1$s</string>
+    <string name="stop_service">توقف</string>
+    <string name="tab_overview">خانه</string>
+    <string name="tab_logs">گزارش‌ها</string>
+    <string name="tab_settings">تنظیمات</string>
+    <string name="server_stopped">گیرنده متوقف است</string>
+    <string name="waiting_for_connection">در انتظار اتصال…</string>
+    <string name="waiting_for_playback">پخش را در دستگاه فرستنده شروع کنید…</string>
+    <string name="error_starting_server">راه‌اندازی گیرنده ناموفق بود</string>
+    <string name="connected_count">%d دستگاه متصل</string>
+    <string name="error_label">خطا</string>
+    <string name="stopped_label">متوقف</string>
+    <string name="btn_start">شروع دریافت</string>
+    <string name="btn_stop">توقف دریافت</string>
+    <string name="btn_allow">اجازه دسترسی</string>
+    <string name="btn_open_settings">باز کردن تنظیمات</string>
+    <string name="local_network_label">دسترسی به شبکه محلی لازم است</string>
+    <string name="local_network_desc">اجازه دسترسی به دستگاه‌های نزدیک را بدهید تا گوشی یا رایانه بتواند این گیرنده را پیدا کند و به آن وصل شود.</string>
+    <string name="unknown_track">ناشناس</string>
+    <string name="cd_pip">تصویر در تصویر</string>
+    <string name="cd_fullscreen">تمام‌صفحه</string>
+    <string name="cd_exit_fullscreen">خروج از تمام‌صفحه</string>
+    <string name="cd_cover_art">کاور آهنگ</string>
+    <string name="cd_play_pause">پخش یا مکث</string>
+    <string name="cd_rewind">عقب بردن</string>
+    <string name="cd_fast_forward">جلو بردن</string>
+    <string name="volume_server">صدای گیرنده</string>
+    <string name="volume_client">صدای فرستنده</string>
+    <string name="volume_value">%1$d٪</string>
+    <string name="cd_download">دانلود ویدیو</string>
+    <string name="cd_cancel_download">لغو دانلود</string>
+    <string name="download_saved">در %1$s ذخیره شد</string>
+    <string name="download_failed">دانلود ناموفق بود</string>
+    <string name="gesture_seek_seconds">%1$d ثانیه</string>
+    <string name="seconds_short">%1$d ثانیه</string>
+    <string name="select_playback_speed">سرعت پخش</string>
+    <string name="cd_reset_speed">بازنشانی سرعت</string>
+    <string name="skip_silence">رد کردن سکوت</string>
+    <string name="cd_back">بازگشت</string>
+    <string name="cd_copy_url">کپی نشانی ویدیو</string>
+    <string name="cd_rotate">چرخش صفحه</string>
+    <string name="cd_lock_controls">قفل کنترل‌ها</string>
+    <string name="cd_unlock_controls">باز کردن قفل کنترل‌ها</string>
+    <string name="scale_best_fit">اندازه مناسب</string>
+    <string name="scale_stretch">کشیدن تصویر</string>
+    <string name="scale_crop">برش تصویر</string>
+    <string name="scale_hundred_percent">۱۰۰٪</string>
+    <string name="dialog_pin_title">رمز اتصال ایرپلی</string>
+    <string name="btn_ok">تأیید</string>
+    <string name="btn_export">خروجی گرفتن</string>
+    <string name="btn_clear">پاک کردن</string>
+    <string name="export_logs_chooser_title">اشتراک‌گذاری گزارش‌ها</string>
+    <string name="section_server">گیرنده</string>
+    <string name="section_connection">اتصال</string>
+    <string name="section_display">تصویر</string>
+    <string name="section_decode">رمزگشایی</string>
+    <string name="section_developer">توسعه‌دهنده</string>
+    <string name="setting_server_name">نام گیرنده</string>
+    <string name="setting_server_port">درگاه گیرنده</string>
+    <string name="setting_auto_start">شروع خودکار گیرنده</string>
+    <string name="setting_auto_start_desc">با باز شدن برنامه، گیرنده ایرپلی فعال شود</string>
+    <string name="setting_boot_auto_start">شروع با روشن شدن دستگاه</string>
+    <string name="setting_boot_auto_start_desc">بعد از روشن شدن تلویزیون، گیرنده فعال شود</string>
+    <string name="setting_run_in_background">اجرا در پس‌زمینه</string>
+    <string name="setting_run_in_background_desc">پس از خروج از برنامه، گیرنده فعال بماند</string>
+    <string name="setting_require_pin">رمز اتصال (آزمایشی)</string>
+    <string name="setting_require_pin_desc">برای هر اتصال جدید یک رمز چهاررقمی لازم باشد</string>
+    <string name="setting_allow_new_conn">پذیرش اتصال جدید</string>
+    <string name="setting_allow_new_conn_desc">هنگام اتصال دستگاه جدید، فرستنده فعلی قطع شود</string>
+    <string name="setting_idle_preview">پیش‌نمایش در حالت انتظار</string>
+    <string name="setting_idle_preview_desc">سطح نمایش ویدیو در حالت انتظار هم نشان داده شود</string>
+    <string name="setting_auto_fullscreen">تمام‌صفحه خودکار</string>
+    <string name="setting_auto_fullscreen_desc">با اتصال فرستنده، تصویر تمام‌صفحه شود</string>
+    <string name="setting_keep_screen_on">روشن نگه داشتن صفحه</string>
+    <string name="setting_keep_screen_on_desc">هنگام اتصال فرستنده، صفحه خاموش نشود</string>
+    <string name="setting_advertise_video">دریافت ویدیو با ایرپلی</string>
+    <string name="setting_advertise_video_desc">در صورت خاموش بودن، ویدیوها فقط به‌صورت صدا دریافت می‌شوند</string>
+    <string name="setting_advertise_mirroring">دریافت بازتاب صفحه</string>
+    <string name="setting_advertise_mirroring_desc">در صورت خاموش بودن، گیرنده در فهرست بازتاب صفحه دیده نمی‌شود</string>
+    <string name="setting_advertise_audio">دریافت موسیقی با ایرپلی</string>
+    <string name="setting_advertise_audio_desc">در صورت خاموش بودن، گیرنده فقط برای بازتاب صفحه قابل استفاده است</string>
+    <string name="setting_alac">پشتیبانی از صدای ALAC</string>
+    <string name="setting_alac_desc">کدک ALAC برای دریافت موسیقی به فرستنده معرفی شود</string>
+    <string name="setting_aac">پشتیبانی از صدای AAC</string>
+    <string name="setting_aac_desc">کدک AAC برای دریافت صدای بازتاب صفحه به فرستنده معرفی شود</string>
+    <string name="setting_launch_on_connect">باز شدن برنامه هنگام اتصال</string>
+    <string name="setting_launch_on_connect_desc">با اتصال فرستنده، برنامه روی صفحه باز شود</string>
+    <string name="setting_launch_on_connect_no_permission">برای اجازه نمایش روی برنامه‌های دیگر بزنید</string>
+    <string name="setting_discovery">قابل شناسایی در</string>
+    <string name="setting_discovery_all_desc">گیرنده در همه شبکه‌های قابل استفاده معرفی شود</string>
+    <string name="setting_discovery_usb_desc">گیرنده فقط از طریق اشتراک اینترنت با کابل USB معرفی شود</string>
+    <string name="chip_all_networks">همه شبکه‌ها</string>
+    <string name="chip_usb_only">فقط کابل USB</string>
+    <string name="setting_resolution">وضوح تصویر</string>
+    <string name="setting_resolution_desc">وضوح تصویر اعلام‌شده به فرستنده</string>
+    <string name="setting_resolution_placeholder">عرض × ارتفاع</string>
+    <string name="setting_resolution_width">عرض</string>
+    <string name="setting_resolution_height">ارتفاع</string>
+    <string name="setting_max_fps">بیشترین نرخ فریم</string>
+    <string name="setting_max_fps_desc">بیشترین تعداد فریم در ثانیه اعلام‌شده به فرستنده</string>
+    <string name="setting_max_fps_placeholder">فریم در ثانیه</string>
+    <string name="setting_overscanned">جبران حاشیه نمایشگر</string>
+    <string name="setting_overscanned_desc">برای نمایشگرهای دارای برش حاشیه، مرز پیکسلی اضافه شود</string>
+    <string name="chip_custom">دلخواه</string>
+    <string name="chip_device_portrait">عمودی</string>
+    <string name="chip_device_landscape">افقی</string>
+    <string name="setting_h265">کدک H.265 (HEVC)</string>
+    <string name="setting_h265_desc">در حالت خودکار فقط از رمزگشاهای سازگار استفاده می‌شود</string>
+    <string name="setting_enforce_sdr">محدوده رنگ استاندارد</string>
+    <string name="setting_enforce_sdr_desc">ویدیو با رنگ استاندارد پخش شود؛ برای حفظ HDR خاموش کنید</string>
+    <string name="setting_sw_alac">رمزگشایی نرم‌افزاری ALAC</string>
+    <string name="setting_sw_alac_desc">به‌جای رمزگشای سیستم از نرم‌افزار استفاده شود؛ ممکن است تأخیر را تغییر دهد</string>
+    <string name="setting_sw_aac">رمزگشایی نرم‌افزاری AAC</string>
+    <string name="setting_sw_aac_desc">به‌جای رمزگشای سیستم از نرم‌افزار استفاده شود؛ ممکن است تأخیر را تغییر دهد</string>
+    <string name="setting_sync_client_volume">هماهنگی صدا با فرستنده</string>
+    <string name="setting_sync_client_volume_desc">صدای گیرنده خودکار با فرستنده هماهنگ شود</string>
+    <string name="setting_developer_options">گزینه‌های پیشرفته</string>
+    <string name="setting_developer_options_desc">نمایش تنظیمات مخصوص کاربران حرفه‌ای</string>
+    <string name="setting_key_allow_frame_drop">اجازه حذف فریم</string>
+    <string name="setting_key_allow_frame_drop_desc">برای همگام ماندن در اندروید ۱۰ به بعد، رمزگشا بتواند فریم حذف کند</string>
+    <string name="setting_realtime_decoder_priority">اولویت پردازش صدا</string>
+    <string name="setting_realtime_decoder_priority_desc">برای رمزگشای صدا اولویت پردازش هم‌زمان درخواست شود</string>
+    <string name="setting_operating_rate">سرعت پردازش رمزگشا</string>
+    <string name="setting_operating_rate_desc">بیشترین سرعت پردازش از رمزگشا درخواست شود</string>
+    <string name="chip_auto">خودکار</string>
+    <string name="chip_on">روشن</string>
+    <string name="chip_off">خاموش</string>
+    <string name="setting_low_latency">تأخیر کم</string>
+    <string name="setting_low_latency_desc">رمزگشایی کم‌تأخیر صدا؛ پردازنده و باتری بیشتری مصرف می‌کند</string>
+    <string name="setting_scheduled_output_buffer_release">هماهنگی زمان فریم‌ها</string>
+    <string name="setting_scheduled_output_buffer_release_desc">نمایش هر فریم با زمان‌بندی نوسازی صفحه هماهنگ شود</string>
+    <string name="setting_audio_delay">تأخیر دلخواه صدا</string>
+    <string name="setting_audio_delay_desc">تأخیر دلخواه به فرستنده اعلام شود</string>
+    <string name="audio_delay_value">%d میلی‌ثانیه</string>
+    <string name="setting_audio_auto_buffer">تنظیم خودکار بافر صدا</string>
+    <string name="setting_audio_auto_buffer_desc">بافر صدا با شرایط شبکه و توان دستگاه تنظیم شود؛ میزان تحمل نوسان را انتخاب کنید</string>
+    <string name="audio_adaptive_value">%1$d٪ (%2$s)</string>
+    <string name="setting_audio_cushion_ms">بافر نرم‌افزاری صدا (میلی‌ثانیه)</string>
+    <string name="setting_audio_cushion_ms_desc">بافر کوتاه‌تر تأخیر کمتری دارد؛ بافر بلندتر اختلال صدا را کاهش می‌دهد</string>
+    <string name="setting_oboe_buffer_frames">بافر خروجی سخت‌افزار (فریم)</string>
+    <string name="setting_oboe_buffer_frames_desc">برای جبران نوسان پردازنده؛ مقدار صفر یعنی تنظیم خودکار</string>
+    <string name="setting_debug_overlay">نمایش اطلاعات فنی</string>
+    <string name="setting_debug_overlay_desc">نمایش کدک، نرخ فریم، نرخ داده، نوسان و فریم‌های حذف‌شده روی ویدیو</string>
+    <string name="setting_benchmark_log">ثبت گزارش فنی</string>
+    <string name="setting_benchmark_log_desc">اطلاعات پخش در گزارش سیستم ثبت شود</string>
+    <string name="debug_section_video">ویدیو</string>
+    <string name="debug_section_audio">صدا</string>
+    <string name="debug_section_network">شبکه</string>
     <string name="debug_video">%1$s %2$s</string>
-    <string name="debug_fps_bitrate">FPS: %1$d  Bitrate: %2$s</string>
-    <string name="debug_frames_drops">Frames: %1$d  Drops: %2$d</string>
-    <string name="debug_jitter">Jitter: %1$s</string>
-    <string name="debug_audio">%1$s  Receiver: %2$d%%  Sender: %3$d%%</string>
-    <string name="debug_audio_buffer">Buffer: %1$d ms (tgt: %2$d ms)</string>
-    <string name="debug_audio_glitch">Glitch: trim=%1$d drop=%2$d sil=%3$d ur=%4$d xrun=%5$d</string>
-    <string name="debug_audio_decode">Decode: %1$s</string>
-    <string name="debug_clients">Senders: %1$d</string>
+    <string name="debug_fps_bitrate">فریم: %1$d  نرخ داده: %2$s</string>
+    <string name="debug_frames_drops">فریم‌ها: %1$d  حذف‌شده: %2$d</string>
+    <string name="debug_jitter">نوسان: %1$s</string>
+    <string name="debug_audio">%1$s  گیرنده: %2$d٪  فرستنده: %3$d٪</string>
+    <string name="debug_audio_buffer">بافر: %1$d میلی‌ثانیه (هدف: %2$d)</string>
+    <string name="debug_audio_glitch">اختلال: برش=%1$d حذف=%2$d سکوت=%3$d کمبود=%4$d خطا=%5$d</string>
+    <string name="debug_audio_decode">رمزگشا: %1$s</string>
+    <string name="debug_clients">فرستنده‌ها: %1$d</string>
+    <string name="section_subtitles">زیرنویس</string>
+    <string name="subtitle_sample">این یک نمونه زیرنویس است</string>
+    <string name="subtitle_show">نمایش زیرنویس</string>
+    <string name="subtitle_show_desc">فایل زیرنویس هم‌نام کنار ویدیو پیدا می‌شود</string>
+    <string name="subtitle_font">فونت</string>
+    <string name="subtitle_bold">ضخیم</string>
+    <string name="subtitle_bold_desc">حروف پررنگ‌تر</string>
+    <string name="subtitle_size">اندازه</string>
+    <string name="subtitle_size_desc">اندازه متن</string>
+    <string name="subtitle_color">رنگ</string>
+    <string name="subtitle_edge">حاشیه حروف</string>
+    <string name="subtitle_edge_desc">خوانایی متن روی صحنه‌های روشن</string>
+    <string name="subtitle_bg">پس‌زمینه</string>
+    <string name="subtitle_bg_desc">کادر تیره پشت متن</string>
+    <string name="subtitle_position">فاصله از پایین</string>
+    <string name="subtitle_position_desc">فاصله از پایین صفحه</string>
+    <string name="subtitle_timing">هماهنگی زمان</string>
+    <string name="subtitle_reset_time">صفر</string>
+    <string name="subtitle_timing_hint">اگر زیرنویس زودتر از صدا می‌آید + بزنید؛ اگر دیرتر می‌آید − بزنید</string>
+    <string name="subtitle_reset">بازنشانی ظاهر زیرنویس</string>
+    <string name="subtitle_reset_desc">وزیرمتن، ۳۰، سفید، دورخط</string>
+    <string name="section_devices">دستگاه‌ها</string>
+    <string name="dlna_enabled">دریافت از گوشی اندرویدی</string>
+    <string name="dlna_enabled_desc">دریافت ویدیو از گوشی‌های اندرویدی با VLC و برنامه‌های سازگار</string>
+    <string name="approve_devices">تأیید دستگاه جدید</string>
+    <string name="approve_devices_desc">فقط اتصال اول تأیید می‌خواهد؛ دستگاه‌های آشنا خودکار وصل می‌شوند</string>
+    <string name="overlay_allow">اجازه نمایش روی برنامه‌های دیگر</string>
+    <string name="overlay_desc">برای نمایش پیام تأیید هنگام استفاده از برنامه‌های دیگر لازم است</string>
+    <string name="no_trusted_devices">هنوز دستگاه تأییدشده‌ای نیست</string>
+    <string name="trusted_devices_hint">بعد از انتخاب «همیشه اجازه بده»، دستگاه اینجا نمایش داده می‌شود</string>
+    <string name="device_remove">حذف</string>
+    <string name="devices_forget">حذف همه</string>
+    <string name="btn_save">ذخیره</string>
+    <string name="btn_cancel">لغو</string>
+    <string name="color_white">سفید</string>
+    <string name="color_yellow">زرد</string>
+    <string name="color_light_yellow">زرد روشن</string>
+    <string name="color_cyan">فیروزه‌ای</string>
+    <string name="color_green">سبز</string>
+    <string name="color_orange">نارنجی</string>
+    <string name="color_pink">صورتی</string>
+    <string name="color_gray">خاکستری</string>
+    <string name="edge_outline">دورخط</string>
+    <string name="edge_shadow">سایه</string>
+    <string name="option_none">هیچ</string>
+    <string name="bg_none">بدون</string>
+    <string name="position_lowest">خیلی پایین</string>
+    <string name="position_low">پایین</string>
+    <string name="position_medium">متوسط</string>
+    <string name="position_high">بالاتر</string>
+    <string name="position_highest">خیلی بالا</string>
+    <string name="language_welcome">به ایرپلی تی‌وی خوش آمدید</string>
+    <string name="language_intro">زبان برنامه را انتخاب کنید</string>
+    <string name="language_change_hint">بعدا هم می‌توانید زبان را در تنظیمات تغییر دهید.</string>
+    <string name="section_language">زبان برنامه</string>
+    <string name="language_description">فارسی، انگلیسی یا ترکیبی را انتخاب کنید</string>
+    <string name="home_eyebrow">تصویر شما، روی پرده بزرگ‌تر</string>
+    <string name="home_headline">ایر پلی تی وی - AirPlay TV</string>
+    <string name="home_subtitle">صفحه، ویدیو و موسیقی را روی تلویزیون تجربه کنید.</string>
+    <string name="home_receiver">نام گیرنده</string>
+    <string name="ready_for_connection">آماده اتصال</string>
+    <string name="home_same_network">گوشی و تلویزیون را به یک شبکه وای‌فای وصل کنید.</string>
+    <string name="home_mirror_title">بازتاب صفحه</string>
+    <string name="home_mirror_desc">در آیفون، آیپد یا مک، مرکز کنترل را باز کنید؛ «بازتاب صفحه» را بزنید و %1$s را انتخاب کنید.</string>
+    <string name="home_video_title">پخش ویدیو با ایرپلی</string>
+    <string name="home_video_desc">در پخش‌کننده ویدیو، نشان ایرپلی را بزنید و %1$s را انتخاب کنید.</string>
+    <string name="home_android_title">از اندروید هم پخش کنید</string>
+    <string name="home_android_desc">با VLC، BubbleUPnP یا Web Video Caster ویدیو را از طریق DLNA بفرستید.</string>
+    <string name="home_guide">راهنمای اتصال</string>
+    <string name="section_updates">به‌روزرسانی</string>
+    <string name="updates_auto">بررسی خودکار</string>
+    <string name="updates_auto_desc">هر ۱۲ ساعت نسخه‌های جدید GitHub بررسی شود</string>
+    <string name="version_current">نسخه فعلی: %1$s</string>
+    <string name="update_check">بررسی نسخه جدید</string>
+    <string name="update_open">باز کردن صفحه نسخه</string>
+    <string name="update_available">نسخه %1$s آماده است</string>
+    <string name="update_versions">نسخه فعلی: %1$s ← نسخه جدید: %2$s</string>
+    <string name="update_later">بعدا</string>
+    <string name="update_checking">در حال بررسی…</string>
+    <string name="update_unreachable">اتصال به GitHub ممکن نشد</string>
+    <string name="update_latest">به‌روز است (%1$s)</string>
+    <string name="store_myket">مایکت</string>
+    <string name="store_bazaar">بازار</string>
+    <string name="store_updates_desc">دریافت و نصب نسخه جدید از طریق %1$s انجام می‌شود.</string>
+    <string name="store_open">مشاهده در %1$s</string>
+    <string name="store_review">ثبت امتیاز و نظر</string>
+    <string name="no_store_handler">روی این دستگاه فروشگاه یا مرورگر قابل استفاده‌ای پیدا نشد.</string>
+    <string name="approval_title">دستگاه جدید</string>
+    <string name="approval_request">«%1$s» می‌خواهد از طریق %2$s وصل شود</string>
+    <string name="approval_remember">با «همیشه اجازه بده»، اتصال‌های بعدی خودکار پذیرفته می‌شوند. (%1$d)</string>
+    <string name="approval_always">همیشه اجازه بده</string>
+    <string name="approval_once">فقط این بار</string>
+    <string name="approval_deny">رد کردن</string>
+    <string name="subtitle_no_delay">بدون تأخیر (۰ ثانیه)</string>
+    <string name="subtitle_later">زیرنویس %1$.1f ثانیه دیرتر</string>
+    <string name="subtitle_earlier">زیرنویس %1$.1f ثانیه زودتر</string>
+    <string name="font_system">پیش‌فرض سیستم</string>
+    <string name="media_previous">قبلی</string>
+    <string name="media_pause">مکث</string>
+    <string name="media_next">بعدی</string>
+    <string-array name="audio_adaptive_step_names">
+        <item>کمترین تأخیر</item>
+        <item>تأخیر کمتر</item>
+        <item>متعادل</item>
+        <item>پایداری بیشتر</item>
+        <item>بیشترین پایداری</item>
+    </string-array>
+    <string name="section_creator">درباره سازنده</string>
+    <string name="creator_name">مهدی اسکندری</string>
+    <string name="creator_role">طراح و سازنده ایرپلی تی‌وی</string>
+    <string name="creator_avatar">تصویر مهدی اسکندری</string>
+    <string name="section_appearance">ظاهر برنامه</string>
+    <string name="setting_theme">تم و رنگ</string>
+    <string name="setting_theme_desc">رنگ و حالت نمایش برنامه را انتخاب کنید</string>
+    <string name="theme_teli_dark">تلی تیره</string>
+    <string name="theme_teli_light">تلی روشن</string>
+    <string name="theme_solid_dark">ساده تیره</string>
 </resources>

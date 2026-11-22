@@ -6,13 +6,28 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 data class TrustedDevice(val id: String, val name: String, val model: String, val addedAt: Long)
 
 // a device waiting for the user to allow or deny it on the TV
 class ApprovalRequest(val id: String, val name: String, val model: String, val source: String) {
-    val result = CompletableFuture<Boolean>()
+    // These primitives also work on Android 6; CompletableFuture requires Android 7.
+    private val decision = AtomicReference<Boolean?>(null)
+    private val answered = CountDownLatch(1)
+
+    fun answer(allow: Boolean) {
+        if (decision.compareAndSet(null, allow)) answered.countDown()
+    }
+
+    fun awaitResult(timeout: Long, unit: TimeUnit): Boolean = try {
+        answered.await(timeout, unit) && decision.get() == true
+    } catch (_: InterruptedException) {
+        Thread.currentThread().interrupt()
+        false
+    }
 }
 
 // devices the user approved once; they connect without asking again

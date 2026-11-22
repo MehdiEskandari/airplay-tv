@@ -11,7 +11,7 @@
 
 [⬇️ دانلود آخرین نسخه / Download the latest APK](https://github.com/MehdiEskandari/airplay-tv/releases/latest)
 
-![صفحه اصلی / Home](docs/screenshots/home.png)
+![صفحه اصلی / Home](docs/screenshots/1.5.0/teli-dark-tv.png)
 
 | | |
 |---|---|
@@ -22,6 +22,8 @@
 
 ## امکانات
 
+- **سه زبان رابط**: فارسی (پیش‌فرض)، انگلیسی و ترکیبی؛ انتخاب در اولین اجرا و تنظیمات
+- **تم تلی** در دو حالت تیره و روشن، به همراه ظاهر ساده؛ انتخاب از تنظیمات و حفظ انتخاب بعد از بستن برنامه
 - **پخش صفحه (Screen Mirroring)** از آیفون، آیپد و مک با H.264 و H.265
 - **پخش فیلم با AirPlay**: فیلم با کیفیت کامل مستقیم روی تلویزیون پخش می‌شود
 - **زیرنویس خودکار**: اگر کنار فایل فیلم روی سرور، فایل زیرنویس هم‌اسم باشد (`.vtt`، `.srt`، `.fa.srt` و...) پیدا و نمایش داده می‌شود. زیرنویس‌های فارسی با کدگذاری قدیمی ویندوز (Windows-1256) هم درست نمایش داده می‌شوند.
@@ -31,7 +33,7 @@
 - **پخش از گوشی‌های اندرویدی (DLNA)**: با VLC، BubbleUPnP، Web Video Caster و هر برنامه‌ای که «Cast/DLNA» دارد. زیرنویس خودکار برای DLNA هم کار می‌کند.
 - **دستگاه‌های آشنا**: هر دستگاه جدید فقط بار اول روی تلویزیون تأیید می‌خواهد («همیشه اجازه بده»)، دفعه‌های بعد خودکار وصل می‌شود. فهرست دستگاه‌ها در تنظیمات قابل مدیریت است.
 - **همیشه آماده در پس‌زمینه**: اگر اندروید برنامه را ببندد دوباره خودش اجرا می‌شود، و بعد از روشن شدن تلویزیون یا به‌روزرسانی هم خودکار شروع می‌شود.
-- **به‌روزرسانی خودکار**: برنامه نسخه جدید را از GitHub پیدا می‌کند و با یک دکمه نصب می‌کند.
+- **به‌روزرسانی خودکار**: نسخه‌های فروشگاهی برای دریافت به‌روزرسانی به همان فروشگاه هدایت می‌شوند؛ نسخهٔ مستقیم صفحهٔ انتشار GitHub را باز می‌کند.
 - پخش موسیقی با نام آهنگ و کاور
 - اجرای خودکار با روشن شدن تلویزیون
 - کنترل کامل با ریموت تلویزیون
@@ -78,7 +80,7 @@ adb shell am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -
 - **DLNA receiver** for Android phones (VLC, BubbleUPnP, Web Video Caster, …), with automatic subtitles
 - **Trusted devices**: approve a new device once on the TV, it connects automatically afterwards
 - **Always on**: restarts itself if Android stops it, and starts after boot and after updates
-- **Auto-update** from GitHub Releases
+- **Updates** through the original store, or GitHub Releases for direct installs
 - Full D-pad navigation, optional PIN
 
 ## Build
@@ -86,10 +88,12 @@ adb shell am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -
 ```bash
 git clone --recursive https://github.com/MehdiEskandari/airplay-tv.git
 cd airplay-tv
-./gradlew assembleDebug
+./gradlew assembleDirectDebug
 # faster, one CPU type only:
-./gradlew assembleDebug -Pabis=armeabi-v7a
+./gradlew assembleDirectDebug -Pabis=armeabi-v7a
 ```
+
+Store releases: `./gradlew assembleBazaarRelease assembleMyketRelease -Pabis=arm64-v8a,armeabi-v7a`. Use the existing release signing configuration in `local.properties`. See [release notes](docs/resubmission-1.5.0.md).
 
 Requires JDK 21, Android SDK 37 and NDK 27.0.12077973. The project path must not contain spaces (an NDK limitation).
 

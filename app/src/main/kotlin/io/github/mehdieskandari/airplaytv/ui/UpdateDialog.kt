@@ -8,10 +8,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import io.github.mehdieskandari.airplaytv.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,17 +28,16 @@ import io.github.mehdieskandari.airplaytv.viewmodel.MainViewModel
 @Composable
 fun UpdateDialog(viewModel: MainViewModel, hidden: Boolean) {
     val rel by viewModel.update.collectAsState()
-    val progress by viewModel.updateProgress.collectAsState()
     val r = rel ?: return
-    if (hidden && progress == null) return
+    if (hidden) return
     val focus = remember(r) { FocusRequester() }
     LaunchedEffect(r) { runCatching { focus.requestFocus() } }
     AlertDialog(
-        onDismissRequest = { if (progress == null) viewModel.postponeUpdate() },
-        title = { Text("Update available · نسخه جدید ${r.version}") },
+        onDismissRequest = { viewModel.postponeUpdate() },
+        title = { Text(stringResource(R.string.update_available, r.version)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("نسخه فعلی: ${viewModel.currentVersion}  →  ${r.version}")
+                Text(stringResource(R.string.update_versions, viewModel.currentVersion, r.version))
                 val notes = r.notes.lineSequence()
                     .map { it.trim().removePrefix("#").trim() }
                     .filter { it.isNotEmpty() && !it.startsWith("---") }
@@ -49,22 +49,18 @@ fun UpdateDialog(viewModel: MainViewModel, hidden: Boolean) {
                         modifier = Modifier.heightIn(max = 220.dp).verticalScroll(rememberScrollState())
                     )
                 }
-                progress?.let {
-                    LinearProgressIndicator(progress = { it }, modifier = Modifier.fillMaxWidth())
-                    Text("Downloading… ${(it * 100).toInt()}% · در حال دانلود")
-                }
+
             }
         },
         confirmButton = {
             Button(
                 onClick = { viewModel.installUpdate() },
-                enabled = progress == null,
                 modifier = Modifier.focusRequester(focus)
-            ) { Text("Update now · به‌روزرسانی") }
+            ) { Text(stringResource(R.string.update_open)) }
         },
         dismissButton = {
-            TextButton(onClick = { viewModel.postponeUpdate() }, enabled = progress == null) {
-                Text("Later · بعدا")
+            TextButton(onClick = { viewModel.postponeUpdate() }) {
+                Text(stringResource(R.string.update_later))
             }
         }
     )

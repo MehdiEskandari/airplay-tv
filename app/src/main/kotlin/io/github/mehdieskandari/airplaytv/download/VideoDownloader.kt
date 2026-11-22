@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 // transformer requires a looper thread
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class VideoDownloader(private val context: Context) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -58,8 +59,8 @@ class VideoDownloader(private val context: Context) {
                         val path = _publish(file)
                         file.delete()
                         _toast(
-                            if (path != null) context.getString(R.string.download_saved, path)
-                            else context.getString(R.string.download_failed)
+                            if (path != null) io.github.mehdieskandari.airplaytv.AppLanguage.context(context).getString(R.string.download_saved, path)
+                            else io.github.mehdieskandari.airplaytv.AppLanguage.context(context).getString(R.string.download_failed)
                         )
                     }
                 }
@@ -67,7 +68,7 @@ class VideoDownloader(private val context: Context) {
                     Log.w(TAG, "export failed", exception)
                     _reset()
                     file.delete()
-                    _toast(context.getString(R.string.download_failed))
+                    _toast(io.github.mehdieskandari.airplaytv.AppLanguage.context(context).getString(R.string.download_failed))
                 }
             })
             .build()

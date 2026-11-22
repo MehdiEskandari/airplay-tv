@@ -35,14 +35,30 @@ android {
         applicationId = "io.github.mehdieskandari.airplaytv"
         minSdk = 23
         targetSdk = 37
-        versionCode = 140
-        versionName = "1.4.0"
+        versionCode = 150
+        versionName = "1.5.0"
 
         externalNativeBuild {
             cmake {
                 arguments += "-DANDROID_STL=c++_shared"
                 arguments += "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
             }
+        }
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("direct") {
+            dimension = "distribution"
+            buildConfigField("String", "STORE", "\"direct\"")
+        }
+        create("bazaar") {
+            dimension = "distribution"
+            buildConfigField("String", "STORE", "\"bazaar\"")
+        }
+        create("myket") {
+            dimension = "distribution"
+            buildConfigField("String", "STORE", "\"myket\"")
         }
     }
 
@@ -87,6 +103,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
         prefab = true
     }
@@ -114,6 +131,7 @@ tasks.configureEach {
 }
 
 dependencies {
+    testImplementation(libs.junit)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime)

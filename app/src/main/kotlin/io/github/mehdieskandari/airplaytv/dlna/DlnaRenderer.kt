@@ -520,17 +520,6 @@ class DlnaRenderer(
         return null
     }
 
-    private fun parseArgs(body: String): Map<String, String> {
-        val inner = Regex("<[^:>]*:?Body[^>]*>(.*)</[^:>]*:?Body>", RegexOption.DOT_MATCHES_ALL).find(body)?.groupValues?.get(1) ?: body
-        val actionInner = Regex("<[^>]+>(.*)</[^>]+>", RegexOption.DOT_MATCHES_ALL).find(inner.trim())?.groupValues?.get(1) ?: ""
-        val out = HashMap<String, String>()
-        Regex("<([A-Za-z0-9_]+)(?:\\s[^>]*)?>(.*?)</\\1>", RegexOption.DOT_MATCHES_ALL).findAll(actionInner).forEach {
-            out[it.groupValues[1]] = xmlUnescape(it.groupValues[2])
-        }
-        Regex("<([A-Za-z0-9_]+)(?:\\s[^>]*)?/>").findAll(actionInner).forEach { out.putIfAbsent(it.groupValues[1], "") }
-        return out
-    }
-
     private fun header(msg: String, name: String): String? =
         msg.lineSequence().firstOrNull { it.startsWith("$name:", ignoreCase = true) }?.substringAfter(':')?.trim()
 
@@ -545,6 +534,17 @@ class DlnaRenderer(
     }
 
     companion object {
+        internal fun parseArgs(body: String): Map<String, String> {
+            val inner = Regex("<[^:>]*:?Body[^>]*>(.*)</[^:>]*:?Body>", RegexOption.DOT_MATCHES_ALL).find(body)?.groupValues?.get(1) ?: body
+            val actionInner = Regex("<[^>]+>(.*)</[^>]+>", RegexOption.DOT_MATCHES_ALL).find(inner.trim())?.groupValues?.get(1) ?: ""
+            val out = HashMap<String, String>()
+            Regex("<([A-Za-z0-9_]+)(?:\\s[^>]*)?>(.*?)</\\1>", RegexOption.DOT_MATCHES_ALL).findAll(actionInner).forEach {
+                out[it.groupValues[1]] = xmlUnescape(it.groupValues[2])
+            }
+            Regex("<([A-Za-z0-9_]+)(?:\\s[^>]*)?/>").findAll(actionInner).forEach { out.getOrPut(it.groupValues[1]) { "" } }
+            return out
+        }
+
         private const val TAG = "DlnaRenderer"
         private const val SSDP_ADDR = "239.255.255.250"
         private const val SSDP_PORT = 1900

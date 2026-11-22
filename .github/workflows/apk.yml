@@ -32,7 +32,8 @@ jobs:
           echo ${{ secrets.STORE }} | base64 -d > upload.jks
           echo ${{ secrets.LOCAL }} | base64 -d > local.properties
           chmod +x ./gradlew;
-          ./gradlew assembleRelease bundleRelease --stacktrace
+          python3 scripts/verify-release.py
+          ./gradlew lintBazaarRelease lintMyketRelease testMyketDebugUnitTest assembleDirectRelease bundleDirectRelease assembleBazaarRelease assembleMyketRelease --no-parallel --max-workers=1 --stacktrace
           rm upload.jks local.properties
 
       - name: Publish (GitHub)
@@ -42,5 +43,7 @@ jobs:
           name: v${{ env.version }}
           tag_name: v${{ env.version }}
           files: |
-            ${{ env.main_project_module }}/build/outputs/apk/release/app-release.apk
-            ${{ env.main_project_module }}/build/outputs/bundle/release/app-release.aab
+            ${{ env.main_project_module }}/build/outputs/apk/direct/release/app-direct-release.apk
+            ${{ env.main_project_module }}/build/outputs/apk/bazaar/release/app-bazaar-release.apk
+            ${{ env.main_project_module }}/build/outputs/apk/myket/release/app-myket-release.apk
+            ${{ env.main_project_module }}/build/outputs/bundle/directRelease/app-direct-release.aab

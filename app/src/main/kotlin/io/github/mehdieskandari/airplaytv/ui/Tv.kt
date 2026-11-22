@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 
 fun Context.isTvDevice(): Boolean =
@@ -42,28 +41,21 @@ fun isTv(): Boolean {
     return remember(ctx) { ctx.isTvDevice() }
 }
 
-// tvOS-style focus: the focused item lifts a little and gets a soft white glow
+// A slight lift and crisp outline make remote focus visible without a glow.
 fun Modifier.dpadFocus(
     shape: Shape = RoundedCornerShape(12.dp),
-    lift: Float = 1.06f,
+    lift: Float = 1.025f,
 ): Modifier = composed {
+    val focusColor = MaterialTheme.colorScheme.primary
     var focused by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         if (focused) lift else 1f,
-        spring(dampingRatio = 0.62f, stiffness = 420f),
+        spring(dampingRatio = 0.9f, stiffness = 420f),
         label = "focusLift"
     )
     onFocusChanged { focused = it.isFocused }
         .graphicsLayer { scaleX = scale; scaleY = scale }
-        .thenIf(focused) {
-            shadow(
-                elevation = 18.dp,
-                shape = shape,
-                ambientColor = Color.White.copy(alpha = 0.35f),
-                spotColor = Color.White.copy(alpha = 0.45f)
-            )
-        }
-        .border(2.dp, if (focused) Color.White.copy(alpha = 0.92f) else Color.Transparent, shape)
+        .border(2.dp, if (focused) focusColor else Color.Transparent, shape)
 }
 
 fun Modifier.dpadAdjust(onLeft: () -> Unit, onRight: () -> Unit): Modifier = composed {

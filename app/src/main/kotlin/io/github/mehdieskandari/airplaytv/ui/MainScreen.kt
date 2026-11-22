@@ -22,9 +22,13 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.BrightnessHigh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import io.github.mehdieskandari.airplaytv.ui.theme.TvColors
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -86,7 +90,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
 private enum class Tab(val labelRes: Int, val icon: ImageVector) {
-    OVERVIEW(R.string.tab_overview, Icons.Default.Cast),
+    OVERVIEW(R.string.tab_overview, AirPlayIcons.Video),
     LOGS(R.string.tab_logs, Icons.AutoMirrored.Filled.Article),
     SETTINGS(R.string.tab_settings, Icons.Default.Settings)
 }
@@ -100,7 +104,8 @@ fun MainScreen(
     onPip: () -> Unit = {},
     onLocalNetwork: () -> Unit = {}
 ) {
-    var tab by remember { mutableStateOf(Tab.OVERVIEW) }
+    val darkAppearance = TvColors.IsDark
+    var tab by rememberSaveable { mutableStateOf(Tab.OVERVIEW) }
     var fullscreen by remember { mutableStateOf(false) }
     val pin by viewModel.pinCode.collectAsState()
     val connections by viewModel.connectionCount.collectAsState()
@@ -156,9 +161,11 @@ fun MainScreen(
 
     val activity = LocalContext.current as? Activity
     val videoScreen = videoPlaybackActive || videoSessionPending
-    LaunchedEffect(fullscreen, videoScreen) {
+    LaunchedEffect(fullscreen, videoScreen, darkAppearance) {
         val window = activity?.window ?: return@LaunchedEffect
         val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.isAppearanceLightStatusBars = !darkAppearance && !fullscreen && !videoScreen
+        controller.isAppearanceLightNavigationBars = !darkAppearance && !fullscreen && !videoScreen
         if (fullscreen || videoScreen) {
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -539,6 +546,7 @@ fun MainScreen(
         )
     } else {
         val tvLayout = isTv()
+        val separatorColor = TvColors.Separator
         Scaffold(
             modifier = Modifier.tvBackdrop(),
             containerColor = Color.Transparent,
@@ -558,13 +566,25 @@ fun MainScreen(
                         visible = audioOnly && connections > 0 && tab != Tab.OVERVIEW,
                         onClick = { tab = Tab.OVERVIEW }
                     )
-                    if (!tvLayout) NavigationBar(containerColor = Color.Black.copy(alpha = 0.55f)) {
+                    if (!tvLayout) NavigationBar(
+                        containerColor = TvColors.Surface,
+                        modifier = Modifier.drawBehind {
+                            drawLine(separatorColor, Offset.Zero, Offset(size.width, 0f), strokeWidth = 1.dp.toPx())
+                        }
+                    ) {
                         Tab.entries.forEach { t ->
                             NavigationBarItem(
                                 selected = tab == t,
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = TvColors.NavForeground,
+                                    selectedTextColor = TvColors.NavLabel,
+                                    unselectedIconColor = TvColors.SecondaryLabel,
+                                    unselectedTextColor = TvColors.SecondaryLabel,
+                                    indicatorColor = TvColors.NavIndicator
+                                ),
                                 onClick = { tab = t },
                                 icon = { Icon(t.icon, null) },
-                                label = { Text(stringResource(t.labelRes)) },
+                                label = { Text(stringResource(t.labelRes), style = MaterialTheme.typography.labelMedium) },
                                 modifier = Modifier.dpadFocus()
                             )
                         }
@@ -673,9 +693,9 @@ private fun OverviewContent(
             },
             statusText = when {
                 grant -> stringResource(R.string.local_network_label)
-                state == ServerState.RUNNING -> "Ready for AirPlay & DLNA · آماده برای اتصال"
+                state == ServerState.RUNNING -> stringResource(R.string.ready_for_connection)
                 state == ServerState.ERROR -> stringResource(R.string.error_label)
-                else -> "Stopped · متوقف"
+                else -> stringResource(R.string.stopped_label)
             },
             message = if (grant) stringResource(R.string.local_network_desc)
                 else if (state == ServerState.ERROR) stringResource(R.string.error_starting_server) else null,
@@ -709,7 +729,7 @@ private fun OverviewContent(
                 if (state != ServerState.RUNNING || connections == 0) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            imageVector = if (connections > 0) Icons.Default.CastConnected else Icons.Default.Cast,
+                            imageVector = AirPlayIcons.Video,
                             contentDescription = null,
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)

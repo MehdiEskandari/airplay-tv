@@ -2,7 +2,14 @@ package io.github.mehdieskandari.airplaytv.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
 import android.content.Intent
+import io.github.mehdieskandari.airplaytv.MainActivity
+import io.github.mehdieskandari.airplaytv.BuildConfig
+import io.github.mehdieskandari.airplaytv.service.StoreLinks
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -19,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
@@ -38,7 +46,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -107,6 +114,20 @@ fun SettingsScreen(viewModel: MainViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(vertical = 8.dp)
     ) {
+        LanguageSettings(viewModel)
+        SectionHeader(stringResource(R.string.section_appearance))
+        val appearance by viewModel.pref(Prefs.APPEARANCE).collectAsState()
+        SettingChips(
+            title = stringResource(R.string.setting_theme),
+            description = stringResource(R.string.setting_theme_desc),
+            value = appearance,
+            options = listOf(
+                Prefs.THEME_TELI_DARK to stringResource(R.string.theme_teli_dark),
+                Prefs.THEME_TELI_LIGHT to stringResource(R.string.theme_teli_light),
+                Prefs.THEME_SOLID_DARK to stringResource(R.string.theme_solid_dark),
+            ),
+            onValueChange = { viewModel.set(Prefs.APPEARANCE, it) }
+        )
         SectionHeader(stringResource(R.string.section_server))
 
         SettingTextField(
@@ -466,6 +487,9 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 onCheckedChange = { viewModel.set(Prefs.BENCHMARK_LOG, it) }
             )
         }
+        SectionHeader(stringResource(R.string.section_creator))
+        CreatorCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp))
+        Spacer(Modifier.height(24.dp))
     }
     }
     }
@@ -488,7 +512,7 @@ private fun _openOverlaySettings(ctx: Context) {
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium,
+        style = MaterialTheme.typography.labelLarge,
         color = io.github.mehdieskandari.airplaytv.ui.theme.TvColors.SecondaryLabel,
         modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 28.dp, bottom = 8.dp)
     )
@@ -782,16 +806,16 @@ private fun SettingSwitch(
             .clip(shape)
             .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),
         colors = ListItemDefaults.colors(
-            containerColor = if (focused) tv.Focus else Color.White.copy(alpha = 0.06f),
+            containerColor = if (focused) tv.Focus else tv.Surface,
             headlineColor = if (focused) tv.OnFocus else tv.Label,
-            supportingColor = if (focused) Color(0xFF48484A) else tv.SecondaryLabel,
+            supportingColor = if (focused) tv.OnFocus.copy(alpha = 0.8f) else tv.SecondaryLabel,
         ),
         headlineContent = { Text(title, style = MaterialTheme.typography.titleMedium) },
         supportingContent = { Text(description) },
         trailingContent = {
             Switch(
                 checked = checked, onCheckedChange = null,
-                colors = SwitchDefaults.colors(checkedTrackColor = tv.Green, checkedThumbColor = Color.White)
+                colors = SwitchDefaults.colors(checkedTrackColor = tv.Blue, checkedThumbColor = Color.White)
             )
         }
     )
@@ -804,7 +828,7 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
     val style = rememberSubtitleStyle(viewModel)
     val delayMs by viewModel.pref(Prefs.SUB_DELAY_MS).collectAsState()
 
-    SectionHeader("Subtitles · زیرنویس")
+    SectionHeader(stringResource(R.string.section_subtitles))
 
     // live preview on a dark "movie" background
     Box(
@@ -813,27 +837,27 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(170.dp)
             .background(
-                Brush.verticalGradient(listOf(Color(0xFF3A4A5C), Color(0xFF15191E))),
+                io.github.mehdieskandari.airplaytv.ui.theme.TvColors.SurfaceHigh,
                 RoundedCornerShape(12.dp)
             ),
         contentAlignment = Alignment.BottomCenter
     ) {
         SubtitleText(
-            text = "این یک نمونه زیرنویس است\nThis is a sample subtitle",
+            text = stringResource(R.string.subtitle_sample),
             style = style.copy(marginDp = 0),
             modifier = Modifier.padding(bottom = (style.marginDp / 4).coerceIn(8, 60).dp)
         )
     }
 
     SettingSwitch(
-        title = "Show subtitles · نمایش زیرنویس",
-        description = "Finds a same-named .vtt/.srt next to the video · فایل زیرنویس هم‌نام کنار فیلم پیدا می‌شود",
+        title = stringResource(R.string.subtitle_show),
+        description = stringResource(R.string.subtitle_show_desc),
         checked = style.enabled,
         onCheckedChange = { viewModel.set(Prefs.SUB_ENABLED, it) }
     )
 
     ListItem(
-        headlineContent = { Text("Font · فونت") },
+        headlineContent = { Text(stringResource(R.string.subtitle_font)) },
         supportingContent = {
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -846,7 +870,9 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
                         onClick = { viewModel.set(Prefs.SUB_FONT, key) },
                         label = {
                             Text(
-                                SubtitleFonts.labels[key] ?: key,
+                                if (androidx.core.os.ConfigurationCompat.getLocales(LocalConfiguration.current)[0]?.language == "en") {
+                                    if (key == "system") stringResource(R.string.font_system) else key.replaceFirstChar { it.uppercase() }
+                                } else SubtitleFonts.labels[key] ?: key,
                                 fontFamily = SubtitleFonts.family(key),
                                 fontSize = 18.sp
                             )
@@ -859,32 +885,32 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
     )
 
     SettingSwitch(
-        title = "Bold · ضخیم",
-        description = "Thicker letters · حروف پررنگ‌تر",
+        title = stringResource(R.string.subtitle_bold),
+        description = stringResource(R.string.subtitle_bold_desc),
         checked = style.bold,
         onCheckedChange = { viewModel.set(Prefs.SUB_BOLD, it) }
     )
 
     SettingChips(
-        title = "Size · اندازه",
-        description = "Text size · اندازه متن",
+        title = stringResource(R.string.subtitle_size),
+        description = stringResource(R.string.subtitle_size_desc),
         value = style.sizeSp.toString(),
         options = listOf(20, 24, 28, 30, 32, 36, 42, 48, 56, 64).map { it.toString() to it.toString() },
         onValueChange = { viewModel.set(Prefs.SUB_SIZE, it.toInt()) }
     )
 
     val colors = listOf(
-        "#FFFFFF" to "سفید",
-        "#FFEB3B" to "زرد",
-        "#FFF59D" to "زرد روشن",
-        "#80DEEA" to "فیروزه‌ای",
-        "#A5D6A7" to "سبز",
-        "#FFB74D" to "نارنجی",
-        "#F48FB1" to "صورتی",
-        "#E0E0E0" to "خاکستری",
+        "#FFFFFF" to stringResource(R.string.color_white),
+        "#FFEB3B" to stringResource(R.string.color_yellow),
+        "#FFF59D" to stringResource(R.string.color_light_yellow),
+        "#80DEEA" to stringResource(R.string.color_cyan),
+        "#A5D6A7" to stringResource(R.string.color_green),
+        "#FFB74D" to stringResource(R.string.color_orange),
+        "#F48FB1" to stringResource(R.string.color_pink),
+        "#E0E0E0" to stringResource(R.string.color_gray),
     )
     ListItem(
-        headlineContent = { Text("Color · رنگ") },
+        headlineContent = { Text(stringResource(R.string.subtitle_color)) },
         supportingContent = {
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -911,41 +937,41 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
     )
 
     SettingChips(
-        title = "Edge · حاشیه حروف",
-        description = "Makes text readable on bright scenes · خوانایی روی صحنه‌های روشن",
+        title = stringResource(R.string.subtitle_edge),
+        description = stringResource(R.string.subtitle_edge_desc),
         value = style.edge,
-        options = listOf("outline" to "دورخط", "shadow" to "سایه", "none" to "هیچ"),
+        options = listOf("outline" to stringResource(R.string.edge_outline), "shadow" to stringResource(R.string.edge_shadow), "none" to stringResource(R.string.option_none)),
         onValueChange = { viewModel.set(Prefs.SUB_EDGE, it) }
     )
 
     SettingChips(
-        title = "Background · پس‌زمینه",
-        description = "Dark box behind the text · کادر تیره پشت متن",
+        title = stringResource(R.string.subtitle_bg),
+        description = stringResource(R.string.subtitle_bg_desc),
         value = style.bgPercent.toString(),
-        options = listOf(0 to "بدون", 25 to "۲۵٪", 35 to "۳۵٪", 50 to "۵۰٪", 70 to "۷۰٪", 90 to "۹۰٪")
+        options = listOf(0, 25, 35, 50, 70, 90).map { it to if (it == 0) stringResource(R.string.bg_none) else stringResource(R.string.volume_value, it) }
             .map { (v, l) -> v.toString() to l },
         onValueChange = { viewModel.set(Prefs.SUB_BG, it.toInt()) }
     )
 
     SettingChips(
-        title = "Position · ارتفاع از پایین",
-        description = "Distance from the bottom of the screen · فاصله از پایین صفحه",
+        title = stringResource(R.string.subtitle_position),
+        description = stringResource(R.string.subtitle_position_desc),
         value = style.marginDp.toString(),
-        options = listOf(10 to "خیلی پایین", 40 to "پایین", 80 to "متوسط", 140 to "بالاتر", 220 to "خیلی بالا")
+        options = listOf(10 to stringResource(R.string.position_lowest), 40 to stringResource(R.string.position_low), 80 to stringResource(R.string.position_medium), 140 to stringResource(R.string.position_high), 220 to stringResource(R.string.position_highest))
             .map { (v, l) -> v.toString() to l },
         onValueChange = { viewModel.set(Prefs.SUB_MARGIN, it.toInt()) }
     )
 
     // timing: applies instantly while a video plays
     ListItem(
-        headlineContent = { Text("Timing · هماهنگی زمان") },
+        headlineContent = { Text(stringResource(R.string.subtitle_timing)) },
         supportingContent = {
             Column(Modifier.padding(top = 8.dp)) {
                 Text(
                     when {
-                        delayMs == 0 -> "بدون تأخیر (0.0s)"
-                        delayMs > 0 -> "زیرنویس %.1f ثانیه دیرتر (+%.1fs)".format(delayMs / 1000f, delayMs / 1000f)
-                        else -> "زیرنویس %.1f ثانیه زودتر (%.1fs)".format(-delayMs / 1000f, delayMs / 1000f)
+                        delayMs == 0 -> stringResource(R.string.subtitle_no_delay)
+                        delayMs > 0 -> stringResource(R.string.subtitle_later, delayMs / 1000f)
+                        else -> stringResource(R.string.subtitle_earlier, -delayMs / 1000f)
                     }
                 )
                 Spacer(Modifier.height(8.dp))
@@ -963,13 +989,13 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
                     FilterChip(
                         selected = delayMs == 0,
                         onClick = { viewModel.set(Prefs.SUB_DELAY_MS, 0) },
-                        label = { Text("صفر · Reset") },
+                        label = { Text(stringResource(R.string.subtitle_reset_time)) },
                         modifier = Modifier.dpadFocus()
                     )
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "اگر زیرنویس زودتر از صدا می‌آید + بزنید، اگر دیرتر می‌آید − بزنید",
+                    stringResource(R.string.subtitle_timing_hint),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -977,8 +1003,8 @@ private fun SubtitleSettings(viewModel: MainViewModel) {
     )
 
     SettingSwitch(
-        title = "Reset subtitle style · بازگشت به پیش‌فرض",
-        description = "Vazirmatn, 30, white, outline · وزیرمتن، ۳۰، سفید، دورخط",
+        title = stringResource(R.string.subtitle_reset),
+        description = stringResource(R.string.subtitle_reset_desc),
         checked = false,
         onCheckedChange = {
             viewModel.set(Prefs.SUB_FONT, Prefs.SUB_FONT.def)
@@ -1007,19 +1033,19 @@ private fun DeviceSettings(viewModel: MainViewModel) {
         onDispose { lifecycle.removeObserver(obs) }
     }
 
-    SectionHeader("Devices · دستگاه‌ها")
+    SectionHeader(stringResource(R.string.section_devices))
 
     val dlnaEnabled by viewModel.pref(Prefs.DLNA_ENABLED).collectAsState()
     SettingSwitch(
-        title = "DLNA for Android phones · دریافت از گوشی اندرویدی",
-        description = "Lets Android phones and apps like VLC, BubbleUPnP or Web Video Caster send videos · پخش از گوشی‌های اندرویدی",
+        title = stringResource(R.string.dlna_enabled),
+        description = stringResource(R.string.dlna_enabled_desc),
         checked = dlnaEnabled,
         onCheckedChange = { viewModel.set(Prefs.DLNA_ENABLED, it) }
     )
 
     SettingSwitch(
-        title = "Ask before new devices connect · تأیید دستگاه جدید",
-        description = "First connection needs approval on the TV, then it's remembered · فقط بار اول تأیید می‌خواهد",
+        title = stringResource(R.string.approve_devices),
+        description = stringResource(R.string.approve_devices_desc),
         checked = approve,
         onCheckedChange = { viewModel.set(Prefs.APPROVE_NEW_DEVICES, it) }
     )
@@ -1029,9 +1055,9 @@ private fun DeviceSettings(viewModel: MainViewModel) {
             modifier = Modifier
                 .dpadFocus(RectangleShape)
                 .clickable { _openOverlaySettings(ctx) },
-            headlineContent = { Text("Allow \"Display over other apps\" · اجازه نمایش روی برنامه‌ها") },
+            headlineContent = { Text(stringResource(R.string.overlay_allow)) },
             supportingContent = {
-                Text("Needed so the approval prompt can appear while you use other apps · برای نمایش پیام تأیید روی برنامه‌های دیگر لازم است")
+                Text(stringResource(R.string.overlay_desc))
             }
         )
     }
@@ -1039,8 +1065,8 @@ private fun DeviceSettings(viewModel: MainViewModel) {
     if (approve) {
         if (devices.isEmpty()) {
             ListItem(
-                headlineContent = { Text("No trusted devices yet · هنوز دستگاه تأییدشده‌ای نیست") },
-                supportingContent = { Text("They appear here after you choose \"Always allow\" · بعد از «همیشه اجازه بده» اینجا می‌آیند") }
+                headlineContent = { Text(stringResource(R.string.no_trusted_devices)) },
+                supportingContent = { Text(stringResource(R.string.trusted_devices_hint)) }
             )
         } else {
             devices.sortedByDescending { it.addedAt }.forEach { d ->
@@ -1051,7 +1077,7 @@ private fun DeviceSettings(viewModel: MainViewModel) {
                         OutlinedButton(
                             onClick = { viewModel.forgetDevice(d.id) },
                             modifier = Modifier.dpadFocus()
-                        ) { Text("Remove · حذف") }
+                        ) { Text(stringResource(R.string.device_remove)) }
                     }
                 )
             }
@@ -1060,7 +1086,7 @@ private fun DeviceSettings(viewModel: MainViewModel) {
                     OutlinedButton(
                         onClick = { viewModel.forgetAllDevices() },
                         modifier = Modifier.dpadFocus()
-                    ) { Text("Forget all · حذف همه") }
+                    ) { Text(stringResource(R.string.devices_forget)) }
                 }
             )
         }
@@ -1068,36 +1094,66 @@ private fun DeviceSettings(viewModel: MainViewModel) {
 }
 
 @Composable
+private fun LanguageSettings(viewModel: MainViewModel) {
+    val language by viewModel.pref(Prefs.LANGUAGE).collectAsState()
+    var open by remember { mutableStateOf(false) }
+    val activity = LocalContext.current as? MainActivity
+    SectionHeader(stringResource(R.string.section_language))
+    ListItem(
+        headlineContent = { Text(when (language) { "en" -> "English"; "mul" -> "فارسی + English"; else -> "فارسی" }) },
+        supportingContent = { Text(stringResource(R.string.language_description)) },
+        leadingContent = { Icon(Icons.Default.Language, null) },
+        modifier = Modifier.dpadFocus(RectangleShape).clickable { open = true }
+    )
+    if (open) Dialog(onDismissRequest = { open = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        LanguagePicker(initial = language, onConfirm = { activity?.chooseLanguage(it) })
+    }
+}
+
+@Composable
 private fun UpdateSettings(viewModel: MainViewModel) {
+    val context = LocalContext.current
     val autoCheck by viewModel.pref(Prefs.AUTO_UPDATE_CHECK).collectAsState()
     val status by viewModel.updateStatus.collectAsState()
     val update by viewModel.update.collectAsState()
-
-    SectionHeader("Updates · به‌روزرسانی")
-
-    SettingSwitch(
-        title = "Check for updates automatically · بررسی خودکار",
-        description = "Looks for a new version on GitHub every 12 hours · هر ۱۲ ساعت نسخه جدید را بررسی می‌کند",
-        checked = autoCheck,
-        onCheckedChange = { viewModel.set(Prefs.AUTO_UPDATE_CHECK, it) }
-    )
-
-    ListItem(
-        headlineContent = { Text("Version ${viewModel.currentVersion} · نسخه فعلی") },
-        supportingContent = { if (status.isNotEmpty()) Text(status) },
-        trailingContent = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (update != null) {
-                    Button(onClick = { viewModel.installUpdate() }, modifier = Modifier.dpadFocus()) {
-                        Text("Install ${update?.version} · نصب")
-                    }
-                }
-                OutlinedButton(onClick = { viewModel.checkForUpdate() }, modifier = Modifier.dpadFocus()) {
-                    Text("Check now · بررسی")
-                }
+    SectionHeader(stringResource(R.string.section_updates))
+    if (StoreLinks.isStoreBuild) {
+        val store = stringResource(if (BuildConfig.STORE == "myket") R.string.store_myket else R.string.store_bazaar)
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.version_current, viewModel.currentVersion)) },
+            supportingContent = { Text(stringResource(R.string.store_updates_desc, store)) }
+        )
+        FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { StoreLinks.open(context, StoreLinks.Action.UPDATE) }, modifier = Modifier.dpadFocus()) {
+                Text(stringResource(R.string.update_check))
+            }
+            OutlinedButton(onClick = { StoreLinks.open(context, StoreLinks.Action.DETAILS) }, modifier = Modifier.dpadFocus()) {
+                Text(stringResource(R.string.store_open, store))
+            }
+            OutlinedButton(onClick = { StoreLinks.open(context, StoreLinks.Action.REVIEW) }, modifier = Modifier.dpadFocus()) {
+                Text(stringResource(R.string.store_review))
             }
         }
-    )
+    } else {
+        SettingSwitch(
+            title = stringResource(R.string.updates_auto),
+            description = stringResource(R.string.updates_auto_desc),
+            checked = autoCheck,
+            onCheckedChange = { viewModel.set(Prefs.AUTO_UPDATE_CHECK, it) }
+        )
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.version_current, viewModel.currentVersion)) },
+            supportingContent = { if (status.isNotEmpty()) Text(status) }
+        )
+        FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (update != null) Button(onClick = { viewModel.installUpdate() }, modifier = Modifier.dpadFocus()) {
+                Text(stringResource(R.string.update_open))
+            }
+            OutlinedButton(onClick = { viewModel.checkForUpdate() }, modifier = Modifier.dpadFocus()) {
+                Text(stringResource(R.string.update_check))
+            }
+        }
+    }
 }
 
 @Composable
@@ -1120,9 +1176,9 @@ private fun SettingTextRow(
             .clip(shape)
             .clickable { editing = true },
         colors = ListItemDefaults.colors(
-            containerColor = if (focused) tv.Focus else Color.White.copy(alpha = 0.06f),
+            containerColor = if (focused) tv.Focus else tv.Surface,
             headlineColor = if (focused) tv.OnFocus else tv.Label,
-            supportingColor = if (focused) Color(0xFF48484A) else tv.SecondaryLabel,
+            supportingColor = if (focused) tv.OnFocus.copy(alpha = 0.8f) else tv.SecondaryLabel,
             trailingIconColor = if (focused) tv.OnFocus else tv.SecondaryLabel,
         ),
         headlineContent = { Text(label, style = MaterialTheme.typography.titleMedium) },
@@ -1158,10 +1214,10 @@ private fun SettingTextRow(
                     onClick = { if (valid) { if (text != value) onCommit(text); editing = false } },
                     enabled = valid,
                     modifier = Modifier.dpadFocus(CircleShape)
-                ) { Text("Save · ذخیره") }
+                ) { Text(stringResource(R.string.btn_save)) }
             },
             dismissButton = {
-                TextButton(onClick = { editing = false }, modifier = Modifier.dpadFocus(CircleShape)) { Text("Cancel · لغو") }
+                TextButton(onClick = { editing = false }, modifier = Modifier.dpadFocus(CircleShape)) { Text(stringResource(R.string.btn_cancel)) }
             }
         )
     }
