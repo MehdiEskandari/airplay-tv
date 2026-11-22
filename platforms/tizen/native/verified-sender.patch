@@ -1,0 +1,33 @@
+diff --git a/lib/raop.h b/lib/raop.h
+--- a/lib/raop.h
++++ b/lib/raop.h
+@@ -100 +100 @@
+-    void  (*report_client_request) (void *cls, char *deviceid, char *model, char *name, bool *admit);
++    void  (*report_client_request) (void *cls, char *deviceid, char *model, char *name, const char *verified_key, bool *admit);
+diff --git a/lib/pairing.h b/lib/pairing.h
+--- a/lib/pairing.h
++++ b/lib/pairing.h
+@@ -49,0 +50 @@
++char *pairing_session_get_verified_key(pairing_session_t *session);
+diff --git a/lib/pairing.c b/lib/pairing.c
+--- a/lib/pairing.c
++++ b/lib/pairing.c
+@@ -656,0 +657,10 @@
++
++/* Tizen adapter: expose only an identity whose signature was verified. */
++char *pairing_session_get_verified_key(pairing_session_t *session) {
++    if (!session || session->status != STATUS_FINISHED || !session->ed_theirs) return NULL;
++    unsigned char key[ED25519_KEY_SIZE];
++    char *base64 = NULL;
++    ed25519_key_get_raw(key, session->ed_theirs);
++    ed25519_pk_to_base64(key, &base64);
++    return base64;
++}
+diff --git a/lib/raop_handlers.h b/lib/raop_handlers.h
+--- a/lib/raop_handlers.h
++++ b/lib/raop_handlers.h
+@@ -757 +757,3 @@
+-            raop->callbacks.report_client_request(raop->callbacks.cls, deviceID, model, name, &admit_client);
++            char *verified_key = pairing_session_get_verified_key(conn->session);
++            raop->callbacks.report_client_request(raop->callbacks.cls, deviceID, model, name, verified_key, &admit_client);
++            free(verified_key);

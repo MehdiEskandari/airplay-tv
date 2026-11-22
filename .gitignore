@@ -11,3 +11,13 @@
 
 *.jks
 .kotlin/
+/tv-web/node_modules/
+/tv-web/dist/
+/tv-web/generated/
+/platforms/tizen/.cache/
+/platforms/tizen/build/
+/platforms/tizen/output/
+*.p12
+*.pfx
+__pycache__/
+*.pyc

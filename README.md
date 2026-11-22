@@ -11,6 +11,8 @@
 
 [⬇️ دانلود آخرین نسخه / Download the latest APK](https://github.com/MehdiEskandari/airplay-tv/releases/latest)
 
+نسخه **Samsung Tizen** با رابط تلی در حال توسعه است: [وضعیت ساخت، محدودیت‌ها و راهنمای تست](platforms/tizen/README.md). این نسخه هنوز روی سخت‌افزار سازگار تایید نشده و از نسل قدیمی Samsung Legacy پشتیبانی نمی‌کند.
+
 ![صفحه اصلی / Home](docs/screenshots/1.5.0/teli-dark-tv.png)
 
 | | |
