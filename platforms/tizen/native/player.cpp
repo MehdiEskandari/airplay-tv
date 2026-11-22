@@ -89,7 +89,7 @@ struct Player::Impl {
     }
     Seconds time(uint64_t ntp) {
         std::lock_guard<std::mutex> lock(clockMutex);if(!baseNtp)baseNtp=ntp;
-        return Seconds(static_cast<int64_t>(ntp-baseNtp)/1000000.0+0.12);
+        return Seconds(static_cast<int64_t>(ntp-baseNtp)/1000000000.0+0.12);
     }
     void clearDecoder(){avcodec_free_context(&decoder);av_packet_free(&packet);av_frame_free(&frame);codec=spf=0;}
     bool configureAudio(unsigned ct,unsigned samples) {
