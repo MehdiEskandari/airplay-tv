@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget>
+  <ThumbIcon>assets/icon.png</ThumbIcon><BigThumbIcon>assets/icon.png</BigThumbIcon>
+  <ListIcon>assets/icon.png</ListIcon><BigListIcon>assets/icon.png</BigListIcon>
+  <category>video</category><autoUpdate>n</autoUpdate><ver>0.1.0</ver>
+  <fullwidget>y</fullwidget><srcctl>y</srcctl><ticker>n</ticker><childlock>n</childlock>
+  <audiomute>n</audiomute><videomute>n</videomute><dcont>y</dcont><movie>n</movie><mouse>y</mouse>
+  <widgetname>AirPlay TV Legacy</widgetname>
+  <description>AirPlay TV Legacy development receiver with Teli themes. Requires a Mac companion.</description>
+  <width>960</width><height>540</height>
+  <author><name>Mehdi Eskandari</name><link>https://github.com/MehdiEskandari/airplay-tv</link></author>
+</widget>

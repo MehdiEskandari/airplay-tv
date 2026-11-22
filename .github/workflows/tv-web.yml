@@ -1,9 +1,9 @@
 name: TV web interface
 on:
   push:
-    paths: ['tv-web/**', 'platforms/tizen/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
+    paths: ['tv-web/**', 'platforms/tizen/**', 'platforms/samsung-legacy/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
   pull_request:
-    paths: ['tv-web/**', 'platforms/tizen/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
+    paths: ['tv-web/**', 'platforms/tizen/**', 'platforms/samsung-legacy/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
 jobs:
   web-and-discovery:
     runs-on: ubuntu-latest
@@ -19,3 +19,5 @@ jobs:
       - run: npm test && npm run build
         working-directory: tv-web
       - run: python3 platforms/tizen/tests/discovery.py
+      - run: python3 platforms/samsung-legacy/tests/http_test.py
+      - run: python3 platforms/samsung-legacy/scripts/build.py --host 127.0.0.1

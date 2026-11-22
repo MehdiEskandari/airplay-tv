@@ -1,0 +1,47 @@
+/* Layout fallback for WebKit 534.7: explicit dimensions, floats and tables. */
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+button{text-align:center;-webkit-appearance:none;outline:none}
+button:focus{outline:none;-webkit-box-shadow:inset 0 0 0 2px #30a9fb}
+#app,#modal-root{width:960px;height:540px;position:absolute;top:50%;left:50%;overflow:hidden;-webkit-transform-origin:50% 50%;transform-origin:50% 50%}
+.shell{display:block;position:relative;height:540px}
+.topbar{display:block;height:84px;padding:12px 18px;text-align:center}
+.tabs{display:inline-block;padding:6px;white-space:nowrap}
+.tab{display:inline-block;min-width:88px;height:54px;padding:10px 26px;margin:0 4px}
+.screen{display:block;position:absolute;top:84px;bottom:0;left:0;right:0;width:960px;height:456px;overflow:auto}
+.home{padding:16px 48px 30px}
+.receiver-card{display:table;table-layout:fixed;width:864px;min-height:124px}
+.receiver-card>div{display:table-cell;vertical-align:middle;width:648px;padding-left:20px;text-align:right}
+.receiver-card>.action{display:table-cell;vertical-align:middle;width:156px;min-width:156px;height:54px;padding:14px 12px}
+.status{display:block}.status:before{display:inline-block;vertical-align:middle;margin-left:8px}
+.receiver-name{word-wrap:break-word}
+.action{display:inline-block;vertical-align:middle;text-align:center}
+.guides{display:block;width:864px;margin-top:14px;overflow:hidden}
+.guide{display:block;float:right;width:278px;min-height:186px;margin-left:15px}
+.guide:last-child{margin-left:0}.guide-top{display:block;height:28px}.guide-top img{width:28px;height:28px;float:right}.guide-top .step{float:left}
+.network-hint{display:block;clear:both}
+.settings{display:block;width:730px;max-width:730px;margin:0 auto;padding:4px 20px 36px}
+.section-title{text-align:right}
+.setting{display:block;position:relative;min-height:64px;padding:12px 16px 12px 100px;text-align:right}
+.setting .setting-body{display:block;margin:0}.setting .value{position:absolute;left:18px;top:22px;max-width:150px}
+.setting .switch{position:absolute;left:18px;top:50%;margin-top:-12px;display:block}
+.choices{display:block;text-align:right;margin:8px 12px}.chip{display:inline-block;margin:4px}
+.creator{display:block;overflow:hidden}.creator img{float:right;margin:0 0 0 16px}.creator>div{display:block;padding-top:2px}
+.logs-toolbar{display:block;height:44px}.logs-toolbar h1{float:right}.logs-toolbar button{float:left}
+.scrim{display:block;position:absolute;top:0;right:0;bottom:0;left:0;padding:0}
+.panel{display:block;position:absolute;width:520px;max-height:500px;top:50%;left:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%)}
+.dialog-actions{display:block}.dialog-actions .action{margin-left:8px}
+.language-screen{display:block;height:540px;padding:20px}
+.language-panel{display:block;position:absolute;width:540px;left:210px;top:20px;max-height:500px}
+.language-option{display:block;position:relative;width:100%;text-align:right;padding:12px 18px 12px 64px;min-height:64px}
+.language-option .check{position:absolute;left:20px;top:20px;font-size:22px}
+.language-panel>.action{display:block;width:100%;margin-top:14px}
+[dir=ltr] .receiver-card>div,[dir=ltr] .section-title,[dir=ltr] .setting,[dir=ltr] .choices,[dir=ltr] .language-option{text-align:left}
+[dir=ltr] .guide{float:left;margin-left:0;margin-right:15px}[dir=ltr] .guide:last-child{margin-right:0}
+[dir=ltr] .guide-top img,[dir=ltr] .creator img,[dir=ltr] .logs-toolbar h1{float:left}
+[dir=ltr] .guide-top .step,[dir=ltr] .logs-toolbar button{float:right}
+[dir=ltr] .setting{padding:12px 100px 12px 16px}[dir=ltr] .setting .switch,[dir=ltr] .setting .value{left:auto;right:18px}
+[dir=ltr] .creator img{margin:0 16px 0 0}
+.legacy-playback{background:transparent!important}.legacy-playback #app{visibility:hidden}
+#toast{z-index:20}
+
+*{-webkit-box-sizing:border-box}.legacy-video,.legacy-video body{background:transparent!important}

@@ -9,5 +9,8 @@
     "package": "node ../platforms/tizen/scripts/package.mjs",
     "test": "node --test test/*.test.mjs"
   },
-  "devDependencies": { "esbuild": "0.28.2" }
+  "devDependencies": {
+    "acorn": "^8.15.0",
+    "esbuild": "0.28.2"
+  }
 }

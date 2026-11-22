@@ -21,3 +21,6 @@
 *.pfx
 __pycache__/
 *.pyc
+/platforms/samsung-legacy/.cache/
+/platforms/samsung-legacy/build/
+/platforms/samsung-legacy/output/
