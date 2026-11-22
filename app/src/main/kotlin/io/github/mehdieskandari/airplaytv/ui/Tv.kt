@@ -54,7 +54,12 @@ fun Modifier.dpadFocus(
         label = "focusLift"
     )
     onFocusChanged { focused = it.isFocused }
-        .graphicsLayer { scaleX = scale; scaleY = scale }
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+            this.shape = shape
+            clip = true
+        }
         .border(2.dp, if (focused) focusColor else Color.Transparent, shape)
 }
 
