@@ -2,7 +2,9 @@
 
 نسخه آزمایشی برای **Samsung UA46ES5600 (E-series, 2012)** با همان تم تلی تیره و روشن، فارسی پیش‌فرض، سه زبان و معرفی سازنده در انتهای تنظیمات.
 
-**This is a companion-based prototype.** The TV runs an ES5 widget and its native Player plug-in; a Mac on the same LAN receives AirPlay and produces H.264/AAC HLS for the TV. The Mac must remain on. A standalone AirPlay receiver on this 2012 TV has not been established: the public Legacy SDK does not expose the UDP/native facilities used by the Tizen core, and Samsung's NaCl support begins in 2013.
+[معرفی فارسی و شروع کار](../../README.md)
+
+**This is a companion-based prototype.** The TV runs an ES5 widget and its native Player plug-in; a Mac on the same LAN receives AirPlay and produces H.264/AAC HLS for the TV. The Mac must remain on. A standalone AirPlay receiver on this 2012 TV has not been established: its public Legacy SDK does not expose the UDP/native facilities needed by the protocol core, and Samsung's NaCl support begins in 2013.
 
 | Legacy Teli dark — browser preview | Legacy Teli light — browser preview |
 | --- | --- |
@@ -35,7 +37,7 @@ The companion selects a LAN address on the TV's subnet, binds HTTP port 4188, an
 
 ## Install on the E-series TV
 
-1. On the TV, open Smart Hub, log in to the reserved **`develop`** account and open the Development menu. Account/terms interaction must be completed by the owner on the TV.
+1. On the TV, open Smart Hub and use Login (the red A key). If needed, choose Create Account, set the ID to **`develop`**, choose a password and then log in. Open Tools → Settings → Development. Complete the account and terms steps on the TV.
 2. Start the local install server using the same Mac LAN IP selected by the companion:
 
    ```sh
@@ -43,7 +45,7 @@ The companion selects a LAN address on the TV's subnet, binds HTTP port 4188, an
      --host YOUR_MAC_LAN_IP --tv YOUR_TV_IP
    ```
 
-   Samsung's development sync uses port **80**, which requires administrator permission on this Mac. The server drops root immediately after binding, serves only this widget/catalog to the specified TV/Mac, and stops after 30 minutes. No administrator password is stored or entered by the agent.
+   Samsung's development sync uses port **80**, which requires administrator permission on macOS. Enter the password in Terminal. The server drops root immediately after binding, serves only this widget/catalog to the specified TV/Mac, and stops after 30 minutes.
 3. In the TV's Development menu, set **Server IP** to the Mac LAN IP. Before choosing **User Application Synchronization**, check whether other developer-installed widgets must be preserved: Samsung's sync can replace the previous development app set. Store-installed apps are a separate category.
 4. Synchronize, then launch **AirPlay TV Legacy**. The local diagnostic log should receive `widget-ready` with the real TV's user agent and Player availability.
 5. Choose the language, then use **Test playback on the TV** in settings. Confirm the TV actually shows the pattern and plays the quiet test tone. Only then select **AirPlay TV Legacy** from an iPhone/iPad/Mac and approve the connection on the TV.
@@ -52,7 +54,7 @@ The companion selects a LAN address on the TV's subnet, binds HTTP port 4188, an
 
 ## Design and platform boundary
 
-The widget reuses the Android product dictionaries, canonical AirPlay logo, static Vazirmatn weights, portrait and Teli palette. Its entry point is handwritten ES5. The build resolves CSS variables to actual theme rules; explicit table/float layouts replace CSS grid, modern flex layout and logical-property dependencies. The native Player is called through Samsung SEF, following Samsung's Orsay TOAST implementation. Actual WebKit 534 font/SVG/rendering behavior still requires widget installation on the device.
+The widget bundles three language dictionaries, the AirPlay logo, static Vazirmatn weights, the creator portrait and the Teli palette. Its entry point is handwritten ES5. The build resolves CSS variables to actual theme rules; explicit table/float layouts replace CSS grid, modern flex layout and logical-property dependencies. The native Player is called through Samsung SEF, following Samsung's Orsay TOAST implementation. Actual WebKit 534 font/SVG/rendering behavior still requires widget installation on the device.
 
 The Mac decodes mirrored H.264, scales it to 720p, schedules video/audio against nanosecond NTP timestamps, then encodes a conservative H.264/AAC stream. This introduces latency; lip sync, reconnects, long sessions, remote-video scrubbing and model-specific HLS behavior remain experimental. Native elementary playback on the TV is not claimed.
 

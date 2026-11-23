@@ -1,110 +1,87 @@
-<p align="center"><img src="docs/art/icon.png" width="128" alt="AirPlay TV icon"></p>
+<p align="center"><img src="docs/art/icon.png" width="112" alt="AirPlay TV Legacy"></p>
 
-# AirPlay TV
+# ایر پلی تی وی - AirPlay TV | Samsung Legacy
 
-[![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![release](https://img.shields.io/github/v/release/MehdiEskandari/airplay-tv)](https://github.com/MehdiEskandari/airplay-tv/releases/latest)
+نسخه آزمایشی برای تلویزیون های قدیمی سامسونگ با **Legacy / Orsay**. دستگاه هدف فعلی **Samsung UA46ES5600، سری E سال ۲۰۱۲** است؛ رابط تلی برای مرورگر قدیمی این نسل آماده شده است.
 
-**رایگان، متن‌باز و بدون تبلیغ.** اندروید تی‌وی، گوگل تی‌وی یا باکس اندرویدی شما (مثل Mi Box S) را به گیرنده **AirPlay** تبدیل می‌کند تا از آیفون، آیپد و مک تصویر، فیلم و موسیقی را روی تلویزیون پخش کنید.
+> این نسخه به یک مک روشن در همان شبکه نیاز دارد. هسته AirPlay روی مک اجرا می شود و تلویزیون، رابط و پخش کننده ویدیو را اجرا می کند. نصب ویجت و تست کامل ایرپلی روی دستگاه هدف هنوز انجام نشده است.
 
-**Free, open-source and ad-free.** Turns your Android TV, Google TV or Android box (e.g. Mi Box S) into an **AirPlay** receiver for iPhone, iPad and Mac.
+## پیش نمایش رابط
 
-[⬇️ دانلود آخرین نسخه / Download the latest APK](https://github.com/MehdiEskandari/airplay-tv/releases/latest)
+| تلی دارک | تلی لایت |
+| --- | --- |
+| ![صفحه اصلی Legacy با تم تلی دارک](docs/screenshots/samsung-legacy/teli-dark.jpg) | ![صفحه اصلی Legacy با تم تلی لایت](docs/screenshots/samsung-legacy/teli-light.jpg) |
 
-نسخه **Samsung Tizen** با رابط تلی در حال توسعه است: [وضعیت ساخت، محدودیت‌ها و راهنمای تست](platforms/tizen/README.md). این نسخه هنوز روی سخت‌افزار سازگار تایید نشده و از نسل قدیمی Samsung Legacy پشتیبانی نمی‌کند.
+تصاویر از اجرای همین نسخه در مرورگر گرفته شده اند؛ عکس اجرای برنامه روی تلویزیون نیستند.
 
-![صفحه اصلی / Home](docs/screenshots/1.5.0/teli-dark-tv.png)
+## امکانات این نسخه
 
-| | |
-|---|---|
-| ![تنظیمات / Settings](docs/screenshots/settings.png) | ![تنظیمات زیرنویس / Subtitle settings](docs/screenshots/subtitles.png) |
-| ![تأیید دستگاه جدید / New device approval](docs/screenshots/approval.png) | ![گوشی اندرویدی / Android phone](docs/screenshots/phone.png) |
+- فارسی پیش فرض و انتخاب فارسی، انگلیسی یا ترکیبی در اولین اجرا
+- تم تلی تیره و روشن و حالت ساده، فونت وزیرمتن و رابط راست به چپ
+- کنترل با دکمه های جهت، Enter و Return ریموت
+- تنظیم نام گیرنده، گزارش رویدادها و معرفی سازنده در انتهای تنظیمات
+- کد رابط سازگار با ES5 و چیدمان مناسب مرورگر قدیمی تلویزیون
+- هسته UxPlay روی مک، تبدیل تصویر به H.264 و صدا به AAC و ارسال HLS به پخش کننده تلویزیون
+- تایید هر درخواست اتصال و گزینه پخش الگوی آزمایشی از تنظیمات
 
----
+## وضعیت ساخت و تست
 
-## امکانات
+| بخش | وضعیت |
+| --- | --- |
+| رابط و تم ها | ساخته شده؛ بررسی در مرورگر و اعتبارسنجی ES5 |
+| هسته مک | کامپایل شده؛ معرفی سرویس و پاسخ RTSP بررسی شده |
+| پردازش H.264 و AAC | تست محلی تصویر و صدای غیرصفر گذرانده شده |
+| پخش فایل آزمایشی روی تلویزیون | دستگاه وضعیت PLAYING و پیشروی زمان ۰ تا ۵ ثانیه را گزارش کرده است |
+| بسته ZIP و فهرست نصب | ساخته شده؛ دریافت آزمایشی از سرور بررسی شده |
+| نصب ویجت و پخش HLS در آن | هنوز روی تلویزیون تایید نشده |
+| اتصال واقعی ایرپلی و مشاهده تصویر و شنیدن صدا | هنوز تایید نشده |
 
-- **سه زبان رابط**: فارسی (پیش‌فرض)، انگلیسی و ترکیبی؛ انتخاب در اولین اجرا و تنظیمات
-- **تم تلی** در دو حالت تیره و روشن، به همراه ظاهر ساده؛ انتخاب از تنظیمات و حفظ انتخاب بعد از بستن برنامه
-- **پخش صفحه (Screen Mirroring)** از آیفون، آیپد و مک با H.264 و H.265
-- **پخش فیلم با AirPlay**: فیلم با کیفیت کامل مستقیم روی تلویزیون پخش می‌شود
-- **زیرنویس خودکار**: اگر کنار فایل فیلم روی سرور، فایل زیرنویس هم‌اسم باشد (`.vtt`، `.srt`، `.fa.srt` و...) پیدا و نمایش داده می‌شود. زیرنویس‌های فارسی با کدگذاری قدیمی ویندوز (Windows-1256) هم درست نمایش داده می‌شوند.
-- **تنظیمات کامل زیرنویس** با پیش‌نمایش زنده: ۶ فونت فارسی (وزیرمتن، ساحل، شبنم، صمیم، استعداد، لاله‌زار)، ضخیم، اندازه، رنگ، دورخط یا سایه، تیرگی پس‌زمینه، ارتفاع از پایین صفحه، و **هماهنگ کردن زمان زیرنویس** (جلو/عقب بردن با گام نیم‌ثانیه، بدون توقف فیلم)
-- **زوم با ریموت** هنگام پخش صفحه: دکمه ▲ و ▼ برای حذف حاشیه سیاه دور فیلم
-- **تصویر پایدارتر**: فریم‌ها هنگام شلوغی پردازنده دور ریخته نمی‌شوند (تصویر شطرنجی نمی‌شود)، و پیش‌فرض ۳۰ فریم در ثانیه برای کیفیت بهتر در هر فریم
-- **پخش از گوشی‌های اندرویدی (DLNA)**: با VLC، BubbleUPnP، Web Video Caster و هر برنامه‌ای که «Cast/DLNA» دارد. زیرنویس خودکار برای DLNA هم کار می‌کند.
-- **دستگاه‌های آشنا**: هر دستگاه جدید فقط بار اول روی تلویزیون تأیید می‌خواهد («همیشه اجازه بده»)، دفعه‌های بعد خودکار وصل می‌شود. فهرست دستگاه‌ها در تنظیمات قابل مدیریت است.
-- **همیشه آماده در پس‌زمینه**: اگر اندروید برنامه را ببندد دوباره خودش اجرا می‌شود، و بعد از روشن شدن تلویزیون یا به‌روزرسانی هم خودکار شروع می‌شود.
-- **به‌روزرسانی خودکار**: نسخه‌های فروشگاهی برای دریافت به‌روزرسانی به همان فروشگاه هدایت می‌شوند؛ نسخهٔ مستقیم صفحهٔ انتشار GitHub را باز می‌کند.
-- پخش موسیقی با نام آهنگ و کاور
-- اجرای خودکار با روشن شدن تلویزیون
-- کنترل کامل با ریموت تلویزیون
-- PIN اختیاری برای امنیت
+تست فایل ویدیو از مسیر DLNA انجام شده است؛ نتیجه آن به معنی نصب ویجت یا تایید پخش ایرپلی نیست.
 
-## نصب
+## راه اندازی روی مک
 
-> **Play Protect:** موقع نصب ممکن است پیام «App scan recommended» بیاید چون گوگل هنوز این برنامه را نمی‌شناسد. روی **Scan app** بزنید؛ بعد از بررسی، نصب ادامه پیدا می‌کند. (یا «Install without scanning».)
+نیازمندی ها: macOS، ابزارهای توسعه Apple، Homebrew OpenSSL 3، Python 3 و Git.
 
-1. فایل `AirPlay-TV-x.y.z.apk` را از صفحه [Releases](https://github.com/MehdiEskandari/airplay-tv/releases/latest) دانلود کنید.
-2. یکی از این روش‌ها:
-   - **با برنامه Downloader** روی تلویزیون: آدرس فایل APK را وارد کنید و نصب کنید.
-   - **با فلش USB**: فایل را روی فلش بریزید و با یک فایل‌منیجر روی تلویزیون نصب کنید.
-   - **با ADB** از کامپیوتر:
-     ```bash
-     adb connect <IP-تلویزیون>:5555
-     adb install AirPlay-TV-1.0.0.apk
-     ```
-3. برنامه **AirPlay TV** را یک بار باز کنید.
-
-## استفاده
-
-- **پخش صفحه:** در آیفون Control Center ← Screen Mirroring ← اسم تلویزیون
-- **پخش فیلم:** داخل پخش‌کننده ویدیو روی آیکون AirPlay بزنید
-- گوشی و تلویزیون باید به **یک شبکه وای‌فای** وصل باشند.
-- محتوای دارای DRM (مثل برنامه Apple TV) پشتیبانی نمی‌شود.
-
-### تنظیم از طریق ADB
-
-```bash
-adb shell "am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -a io.github.mehdieskandari.airplaytv.SET_SETTING --es key server_name --es value 'Living Room'"
-adb shell am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -a io.github.mehdieskandari.airplaytv.LIST_SETTINGS
-```
-
----
-
-## Features (English)
-
-- Screen mirroring (H.264 / H.265), AirPlay video casting and audio streaming
-- **Automatic subtitles**: picks up a same-named subtitle file next to the video on the server (`.vtt`, `.srt`, `.fa.srt`, …), including Windows-1256 encoded Persian `.srt`
-- **Subtitle settings** with live preview: 6 bundled Persian fonts, bold, size, color, outline/shadow, background, position, and instant timing offset
-- **Remote-controlled zoom** while mirroring (▲ / ▼) to crop black bars around a movie
-- **More stable picture**: the decoder input waits instead of dropping frames (no blocky artifacts), 30 fps default
-- **DLNA receiver** for Android phones (VLC, BubbleUPnP, Web Video Caster, …), with automatic subtitles
-- **Trusted devices**: approve a new device once on the TV, it connects automatically afterwards
-- **Always on**: restarts itself if Android stops it, and starts after boot and after updates
-- **Updates** through the original store, or GitHub Releases for direct installs
-- Full D-pad navigation, optional PIN
-
-## Build
-
-```bash
-git clone --recursive https://github.com/MehdiEskandari/airplay-tv.git
+```sh
+git clone --branch codex/samsung-legacy --recurse-submodules https://github.com/MehdiEskandari/airplay-tv.git
 cd airplay-tv
-./gradlew assembleDirectDebug
-# faster, one CPU type only:
-./gradlew assembleDirectDebug -Pabis=armeabi-v7a
+python3 -m venv platforms/samsung-legacy/.cache/python
+platforms/samsung-legacy/.cache/python/bin/pip install -r platforms/samsung-legacy/requirements-host.txt
+python3 platforms/samsung-legacy/scripts/build-host.py
+platforms/samsung-legacy/.cache/python/bin/python platforms/samsung-legacy/scripts/companion.py --tv YOUR_TV_IP
 ```
 
-Store releases: `./gradlew assembleBazaarRelease assembleMyketRelease -Pabis=arm64-v8a,armeabi-v7a`. Use the existing release signing configuration in `local.properties`. See [release notes](docs/resubmission-1.5.0.md).
+به جای `YOUR_TV_IP` آدرس شبکه تلویزیون را بنویسید. مک و تلویزیون باید به یک شبکه محلی وصل باشند؛ اتصال کابلی تلویزیون هم قابل استفاده است. این فرمان، سرور هسته و بسته مخصوص همان شبکه را آماده می کند.
 
-Requires JDK 21, Android SDK 37 and NDK 27.0.12077973. The project path must not contain spaces (an NDK limitation).
+## نصب روی تلویزیون سری E
 
-## License
+1. در Smart Hub با حساب مخصوص `develop` وارد شوید و منوی **Tools → Settings → Development** را باز کنید. اگر حساب ساخته نشده، از **Login → Create Account** با شناسه `develop` و یک رمز دلخواه آن را بسازید.
+2. در یک پنجره دیگر Terminal، سرور نصب را اجرا کنید:
 
-GPL-3.0, see [LICENSE](LICENSE).
+   ```sh
+   sudo python3 platforms/samsung-legacy/scripts/installer.py --host YOUR_MAC_LAN_IP --tv YOUR_TV_IP
+   ```
 
-Bundled fonts (SIL Open Font License 1.1, see [fonts-licenses](fonts-licenses)): [Vazirmatn](https://github.com/rastikerdar/vazirmatn), [Sahel](https://github.com/rastikerdar/sahel-font), [Shabnam](https://github.com/rastikerdar/shabnam-font), [Samim](https://github.com/rastikerdar/samim-font), [Estedad](https://github.com/aminabedi68/Estedad), [Lalezar](https://github.com/google/fonts/tree/main/ofl/lalezar).
+   `YOUR_MAC_LAN_IP` آدرس مک در همان شبکه است. دسترسی مدیر برای باز کردن پورت ۸۰ لازم است؛ سرور پس از باز کردن پورت، دسترسی مدیر را کنار می گذارد و پس از ۳۰ دقیقه متوقف می شود.
+3. در تلویزیون، **Setting Server IP** را روی آدرس مک بگذارید. پیش از **User Application Synchronization**، برنامه های نصب شده با develop را بررسی کنید؛ همگام سازی ممکن است مجموعه قبلی این برنامه ها را جایگزین کند.
+4. برنامه **AirPlay TV Legacy** را باز کنید، زبان را انتخاب کنید و ابتدا گزینه تست پخش را اجرا کنید. پس از تایید تصویر و صدا، اتصال ایرپلی از آیفون، آیپد یا مک را آزمایش کنید.
 
-Based on [android-airplay-server](https://github.com/jqssun/android-airplay-server) (GPL-3.0). Uses [UxPlay](https://github.com/FDH2/UxPlay), [FFmpeg](https://ffmpeg.org), [libplist](https://github.com/libimobiledevice/libplist) and [OpenSSL](https://www.openssl.org).
+خروجی محلی: `platforms/samsung-legacy/output/AirPlayTVLegacy_0.1.0.zip`. این بسته شامل کلید ارتباط محلی است و نباید به عنوان فایل دانلود عمومی منتشر شود.
 
-Not affiliated with Apple Inc. AirPlay is a trademark of Apple Inc.
+[راهنمای کامل ساخت، معماری، محدودیت ها و تست](platforms/samsung-legacy/README.md).
+
+## ساختار این برنچ
+
+| مسیر | محتوا |
+| --- | --- |
+| [platforms/samsung-legacy/web](platforms/samsung-legacy/web) | رابط ES5 و سبک های مخصوص Orsay |
+| [platforms/samsung-legacy/bridge](platforms/samsung-legacy/bridge) | هسته دریافت و پردازش رسانه روی مک |
+| [platforms/samsung-legacy/scripts](platforms/samsung-legacy/scripts) | ساخت، سرور هسته و سرور نصب |
+| [platforms/samsung-legacy/tests](platforms/samsung-legacy/tests) | تست های پردازش رسانه و HTTP |
+| [تصاویر Legacy](docs/screenshots/samsung-legacy) | پیش نمایش های همین نسخه |
+
+## مجوز و سازنده
+
+[GPL-3.0](LICENSE). فونت وزیرمتن با مجوز [SIL Open Font License](fonts-licenses/Vazirmatn-OFL.txt) استفاده شده است.
+
+سازنده: [مهدی اسکندری](https://github.com/MehdiEskandari). این پروژه وابسته به Apple یا Samsung نیست. AirPlay نشان تجاری Apple است.
