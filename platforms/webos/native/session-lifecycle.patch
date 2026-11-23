@@ -1,0 +1,5 @@
+--- a/lib/raop.c
++++ b/lib/raop.c
+@@ -560 +560 @@
+-    if (raop->callbacks.conn_destroy) {
++    if ((conn->raop_rtp || conn->raop_rtp_mirror) && raop->callbacks.conn_destroy) {

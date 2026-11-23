@@ -1,0 +1,5 @@
+{
+  "name": "io.github.mehdieskandari.airplaytv.webos.receiver",
+  "version": "0.2.0",
+  "main": "service.js"
+}

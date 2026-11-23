@@ -1,0 +1,12 @@
+--- a/lib/raop_rtp.c
++++ b/lib/raop_rtp.c
+@@ -462 +462,2 @@
+-            int type_c = packet[1] & ~0x80;
++            if (packetlen < 4) continue;
++            int type_c = packet[1] & ~0x80;
+@@ -473 +474 @@
+-                    assert(result >= 0);
++                    if (result < 0) continue;
+@@ -600 +601 @@
+-            assert(result >= 0);
++            if (result < 0) continue;

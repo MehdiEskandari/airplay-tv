@@ -60,3 +60,9 @@ test('physical remote directions work with both RTL and LTR row order',()=>{
   }
   assert.equal(nextInDirection(left,[middle,right],'left'),null);
 });
+test('stop while an asynchronous network lookup runs prevents a delayed native load',async()=>{
+  let resolve,loaded=false;const lookup=new Promise(r=>resolve=r);
+  const r=receiver({getIp:()=>lookup,loadCore:async()=>{loaded=true;return {};}});
+  const starting=r.engine.start();r.engine.stop();resolve('192.168.1.20');await starting;
+  assert.equal(loaded,false);assert.equal(r.engine.status,'stopped');
+});

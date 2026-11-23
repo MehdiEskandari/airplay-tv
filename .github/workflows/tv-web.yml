@@ -1,14 +1,19 @@
-name: webOS interface preview
+name: webOS experimental receiver
 on:
   push:
-    paths: ['tv-web/**', 'platforms/webos/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
+    paths: ['tv-web/**', 'platforms/webos/**', 'app/src/main/res/**', 'app/src/main/cpp/**', '.github/workflows/tv-web.yml']
   pull_request:
-    paths: ['tv-web/**', 'platforms/webos/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
+    paths: ['tv-web/**', 'platforms/webos/**', 'app/src/main/res/**', 'app/src/main/cpp/**', '.github/workflows/tv-web.yml']
 jobs:
   web-and-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -18,10 +23,21 @@ jobs:
         working-directory: tv-web
       - run: npm test
         working-directory: tv-web
+      - name: Install pinned upstream Emscripten
+        run: |
+          git clone --depth 1 --branch 3.1.45 https://github.com/emscripten-core/emsdk.git platforms/webos/.cache/emsdk
+          platforms/webos/.cache/emsdk/emsdk install 3.1.45
+          platforms/webos/.cache/emsdk/emsdk activate 3.1.45
+      - name: Build portable receiver and decoder tests
+        run: python3 platforms/webos/scripts/build-core.py --decoder-test --jobs 4
+      - name: Exercise the actual WASM sockets, RTSP and audio decoders
+        run: |
+          node platforms/webos/tests/core-smoke.cjs
+          node platforms/webos/tests/decoder.cjs
       - run: npm run package:webos
         working-directory: tv-web
       - run: python3 platforms/webos/tests/package.py
       - uses: actions/upload-artifact@v4
         with:
-          name: airplay-tv-webos-interface-preview
+          name: airplay-tv-webos-experimental-receiver
           path: platforms/webos/output/*.ipk

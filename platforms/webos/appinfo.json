@@ -1,11 +1,11 @@
 {
   "id": "io.github.mehdieskandari.airplaytv.webos",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "vendor": "Mehdi Eskandari",
   "type": "web",
   "main": "index.html",
   "title": "AirPlay TV",
-  "appDescription": "Teli interface preview. AirPlay receiver core pending.",
+  "appDescription": "Experimental AirPlay receiver with Teli themes.",
   "icon": "icon.png",
   "largeIcon": "largeIcon.png",
   "iconColor": "#000000",

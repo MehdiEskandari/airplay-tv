@@ -3,9 +3,11 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {buildWeb,webRoot} from '../../../tv-web/scripts/build.mjs';
+import {buildService,servicePath} from './build-service.mjs';
 
 const platform=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 await buildWeb({platform:'webos'});
+await buildService();
 const staging=path.join(platform,'build/app'),output=path.join(platform,'output');
 await rm(staging,{recursive:true,force:true});
 await mkdir(staging,{recursive:true});await mkdir(output,{recursive:true});
@@ -13,5 +15,7 @@ await cp(path.join(webRoot,'dist'),staging,{recursive:true,filter:src=>!src.ends
 for(const name of ['appinfo.json','icon.png','largeIcon.png'])await copyFile(path.join(platform,name),path.join(staging,name));
 const info=JSON.parse(await readFile(path.join(staging,'appinfo.json'),'utf8'));
 const cli=process.env.WEBOS_PACKAGE_CLI||path.join(webRoot,'node_modules/.bin/ares-package');
-execFileSync(cli,['--no-minify',staging,'--outdir',output],{stdio:'inherit'});
-console.info('Built '+path.join(output,info.id+'_'+info.version+'_all.ipk')+'\nINTERFACE PREVIEW ONLY. AirPlay receiving and LG hardware verification are pending.');
+await mkdir(path.join(staging,'licenses'),{recursive:true});
+await copyFile(path.join(webRoot,'node_modules/jmuxer/LICENSE'),path.join(staging,'licenses/JMuxer-MIT.txt'));
+execFileSync(cli,['--no-minify',staging,servicePath,'--outdir',output],{stdio:'inherit'});
+console.info('Built '+path.join(output,info.id+'_'+info.version+'_all.ipk')+'\nEXPERIMENTAL webOS AirPlay receiver. Physical LG hardware verification is pending.');
