@@ -1,6 +1,8 @@
 # AirPlay TV for Samsung Tizen — development prototype
 
-رابط تلی تیره و روشن، فونت وزیرمتن، فارسی پیش‌فرض و انتخاب سه زبان از نسخه اندروید منتقل شده است. هسته تایزن جدا از رابط ساخته می‌شود. این نسخه هنوز روی تلویزیون سازگار تست نشده و نسخه آماده انتشار نیست.
+نسخه آزمایشی مخصوص Samsung Tizen، با رابط تلی تیره و روشن، فونت وزیرمتن، فارسی پیش فرض و انتخاب سه زبان. هسته تایزن جدا از رابط ساخته می شود. این نسخه هنوز روی تلویزیون سازگار تست نشده و نسخه آماده انتشار نیست.
+
+[معرفی فارسی و شروع کار](../../README.md)
 
 | Teli dark — browser preview | Teli light — browser preview |
 | --- | --- |
@@ -9,10 +11,9 @@
 ## Target and current boundary
 
 - Target: Samsung TV with **Tizen 5.5 / 2020 or later**, subject to hardware verification. The Samsung WebAssembly socket and media extensions are required. A normal browser is a UI preview, never an AirPlay receiver.
-- Samsung **2010–2014 Legacy Platform** TVs do not run Tizen widgets. The discovered test TV belongs to that generation. No Tizen app was installed on it.
 - The native adapter reuses the repository's patched UxPlay protocol core, OpenSSL 3.4.4 and minimal FFmpeg AAC/ALAC decoders. It implements TCP/UDP receiving, multicast AirPlay/RAOP service advertisements, H.264 elementary playback through Samsung EMSS and HLS URLs through AVPlay.
 - Physical discovery from an iPhone/Mac, pairing, audible audio, video, synchronization, repeat connections, background/resume and model-specific decoder support remain **unverified**. A successful compile is not evidence of playback.
-- This prototype omits Android services, store intents, boot auto-start, DLNA, HEVC, subtitle controls and PIN settings. It always uses full-screen playback. New-device approval defaults on and expires after 30 seconds. Remembered identities require a verified sender signature, rather than trusting a spoofable device name.
+- Playback is full-screen. Boot auto-start, DLNA, HEVC, subtitle controls and PIN settings are not implemented in this prototype. New-device approval defaults on and expires after 30 seconds. Remembered identities require a verified sender signature, rather than trusting a spoofable device name.
 - Settings, random receiver identity, pairing identity and allowed public keys stay on the TV. No analytics has been added.
 
 ## Build and preview the interface
@@ -62,11 +63,9 @@ The unsigned WGT is a development archive, **not installable or store-ready**. P
 
 On a compatible TV, Developer Mode and an authorized developer connection must be configured before `tizen install`. No such connection can make a Legacy TV run a Tizen widget.
 
-## Shared interface and future adapters
+## Tizen project structure
 
 `tv-web/src/app.js`, `style.css`, `i18n.js` and `remote.js` own the interface. `src/engine.js` owns receiver state independently of the platform. `src/platforms/tizen.js` supplies SDK loading, local IP, exit and media APIs. The native event/command boundary is explicit and includes a run ID to discard old asynchronous callbacks after stop/restart.
-
-webOS will need its own receiver adapter and package. Legacy Samsung will additionally need an older JavaScript/CSS build and a feasibility investigation of its networking and decoder APIs. Reproducing the Teli appearance is feasible; a complete standalone AirPlay receiver on Legacy is not yet established. Neither platform is advertised as supported by this prototype.
 
 ## Verification
 

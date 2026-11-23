@@ -1,110 +1,84 @@
-<p align="center"><img src="docs/art/icon.png" width="128" alt="AirPlay TV icon"></p>
+<p align="center"><img src="docs/art/icon.png" width="112" alt="AirPlay TV"></p>
 
-# AirPlay TV
+# ایر پلی تی وی - AirPlay TV | Samsung Tizen
 
-[![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![release](https://img.shields.io/github/v/release/MehdiEskandari/airplay-tv)](https://github.com/MehdiEskandari/airplay-tv/releases/latest)
+نسخه آزمایشی گیرنده AirPlay برای تلویزیون سامسونگ با **Tizen 5.5 و بالاتر**، با رابط تلی، فارسی پیش فرض و کنترل با ریموت.
 
-**رایگان، متن‌باز و بدون تبلیغ.** اندروید تی‌وی، گوگل تی‌وی یا باکس اندرویدی شما (مثل Mi Box S) را به گیرنده **AirPlay** تبدیل می‌کند تا از آیفون، آیپد و مک تصویر، فیلم و موسیقی را روی تلویزیون پخش کنید.
+> این برنچ مخصوص Tizen است. رابط و هسته ساخته شده اند؛ اتصال و پخش واقعی روی تلویزیون سازگار هنوز تایید نشده است. بسته بدون امضا برای نصب آماده نیست.
 
-**Free, open-source and ad-free.** Turns your Android TV, Google TV or Android box (e.g. Mi Box S) into an **AirPlay** receiver for iPhone, iPad and Mac.
+## پیش نمایش رابط
 
-[⬇️ دانلود آخرین نسخه / Download the latest APK](https://github.com/MehdiEskandari/airplay-tv/releases/latest)
+| تلی دارک | تلی لایت |
+| --- | --- |
+| ![صفحه اصلی تایزن با تم تلی دارک](docs/screenshots/tizen/teli-dark.jpg) | ![صفحه اصلی تایزن با تم تلی لایت](docs/screenshots/tizen/teli-light.jpg) |
 
-نسخه **Samsung Tizen** با رابط تلی در حال توسعه است: [وضعیت ساخت، محدودیت‌ها و راهنمای تست](platforms/tizen/README.md). این نسخه هنوز روی سخت‌افزار سازگار تایید نشده و از نسل قدیمی Samsung Legacy پشتیبانی نمی‌کند.
+تصاویر از اجرای همین نسخه در مرورگر گرفته شده اند؛ عکس اجرای برنامه روی تلویزیون نیستند.
 
-![صفحه اصلی / Home](docs/screenshots/1.5.0/teli-dark-tv.png)
+## امکانات این نسخه
 
-| | |
-|---|---|
-| ![تنظیمات / Settings](docs/screenshots/settings.png) | ![تنظیمات زیرنویس / Subtitle settings](docs/screenshots/subtitles.png) |
-| ![تأیید دستگاه جدید / New device approval](docs/screenshots/approval.png) | ![گوشی اندرویدی / Android phone](docs/screenshots/phone.png) |
+- سه حالت زبان: فارسی، انگلیسی و ترکیبی؛ انتخاب در اولین اجرا و تنظیمات
+- تم تلی تیره و روشن و حالت ساده، فونت وزیرمتن و پشتیبانی از راست به چپ
+- جابه جایی با دکمه های جهت، انتخاب با Enter و بازگشت با Back
+- نام گیرنده، گزارش رویدادها و معرفی سازنده در انتهای تنظیمات
+- هسته AirPlay مبتنی بر UxPlay، با دریافت TCP/UDP و معرفی گیرنده از طریق mDNS
+- مسیر پخش H.264 با Samsung EMSS و ویدیوی HLS با AVPlay
+- درخواست اجازه برای دستگاه جدید، مهلت ۳۰ ثانیه ای و نگهداری هویت های تایید شده روی تلویزیون
 
----
+امکانات مربوط به اتصال و پخش، در کد پیاده سازی شده اند و به تست روی سخت افزار نیاز دارند.
 
-## امکانات
+## وضعیت ساخت و تست
 
-- **سه زبان رابط**: فارسی (پیش‌فرض)، انگلیسی و ترکیبی؛ انتخاب در اولین اجرا و تنظیمات
-- **تم تلی** در دو حالت تیره و روشن، به همراه ظاهر ساده؛ انتخاب از تنظیمات و حفظ انتخاب بعد از بستن برنامه
-- **پخش صفحه (Screen Mirroring)** از آیفون، آیپد و مک با H.264 و H.265
-- **پخش فیلم با AirPlay**: فیلم با کیفیت کامل مستقیم روی تلویزیون پخش می‌شود
-- **زیرنویس خودکار**: اگر کنار فایل فیلم روی سرور، فایل زیرنویس هم‌اسم باشد (`.vtt`، `.srt`، `.fa.srt` و...) پیدا و نمایش داده می‌شود. زیرنویس‌های فارسی با کدگذاری قدیمی ویندوز (Windows-1256) هم درست نمایش داده می‌شوند.
-- **تنظیمات کامل زیرنویس** با پیش‌نمایش زنده: ۶ فونت فارسی (وزیرمتن، ساحل، شبنم، صمیم، استعداد، لاله‌زار)، ضخیم، اندازه، رنگ، دورخط یا سایه، تیرگی پس‌زمینه، ارتفاع از پایین صفحه، و **هماهنگ کردن زمان زیرنویس** (جلو/عقب بردن با گام نیم‌ثانیه، بدون توقف فیلم)
-- **زوم با ریموت** هنگام پخش صفحه: دکمه ▲ و ▼ برای حذف حاشیه سیاه دور فیلم
-- **تصویر پایدارتر**: فریم‌ها هنگام شلوغی پردازنده دور ریخته نمی‌شوند (تصویر شطرنجی نمی‌شود)، و پیش‌فرض ۳۰ فریم در ثانیه برای کیفیت بهتر در هر فریم
-- **پخش از گوشی‌های اندرویدی (DLNA)**: با VLC، BubbleUPnP، Web Video Caster و هر برنامه‌ای که «Cast/DLNA» دارد. زیرنویس خودکار برای DLNA هم کار می‌کند.
-- **دستگاه‌های آشنا**: هر دستگاه جدید فقط بار اول روی تلویزیون تأیید می‌خواهد («همیشه اجازه بده»)، دفعه‌های بعد خودکار وصل می‌شود. فهرست دستگاه‌ها در تنظیمات قابل مدیریت است.
-- **همیشه آماده در پس‌زمینه**: اگر اندروید برنامه را ببندد دوباره خودش اجرا می‌شود، و بعد از روشن شدن تلویزیون یا به‌روزرسانی هم خودکار شروع می‌شود.
-- **به‌روزرسانی خودکار**: نسخه‌های فروشگاهی برای دریافت به‌روزرسانی به همان فروشگاه هدایت می‌شوند؛ نسخهٔ مستقیم صفحهٔ انتشار GitHub را باز می‌کند.
-- پخش موسیقی با نام آهنگ و کاور
-- اجرای خودکار با روشن شدن تلویزیون
-- کنترل کامل با ریموت تلویزیون
-- PIN اختیاری برای امنیت
+| بخش | وضعیت |
+| --- | --- |
+| رابط، زبان ها و تم ها | ساخته شده؛ بررسی در مرورگر |
+| هسته Samsung WebAssembly | کامپایل شده |
+| تست های JavaScript و رکوردهای mDNS | گذرانده شده |
+| بسته WGT | آرشیو بدون امضای توسعه ساخته شده |
+| امضا و نصب روی تلویزیون | در انتظار گواهی Samsung TV و دستگاه سازگار |
+| شناسایی با آیفون، اتصال، تصویر و صدای واقعی | هنوز روی تلویزیون تایید نشده |
 
-## نصب
+## اجرای رابط در مرورگر
 
-> **Play Protect:** موقع نصب ممکن است پیام «App scan recommended» بیاید چون گوگل هنوز این برنامه را نمی‌شناسد. روی **Scan app** بزنید؛ بعد از بررسی، نصب ادامه پیدا می‌کند. (یا «Install without scanning».)
+نیازمندی ها: Git، Node.js، npm و Python 3.
 
-1. فایل `AirPlay-TV-x.y.z.apk` را از صفحه [Releases](https://github.com/MehdiEskandari/airplay-tv/releases/latest) دانلود کنید.
-2. یکی از این روش‌ها:
-   - **با برنامه Downloader** روی تلویزیون: آدرس فایل APK را وارد کنید و نصب کنید.
-   - **با فلش USB**: فایل را روی فلش بریزید و با یک فایل‌منیجر روی تلویزیون نصب کنید.
-   - **با ADB** از کامپیوتر:
-     ```bash
-     adb connect <IP-تلویزیون>:5555
-     adb install AirPlay-TV-1.0.0.apk
-     ```
-3. برنامه **AirPlay TV** را یک بار باز کنید.
-
-## استفاده
-
-- **پخش صفحه:** در آیفون Control Center ← Screen Mirroring ← اسم تلویزیون
-- **پخش فیلم:** داخل پخش‌کننده ویدیو روی آیکون AirPlay بزنید
-- گوشی و تلویزیون باید به **یک شبکه وای‌فای** وصل باشند.
-- محتوای دارای DRM (مثل برنامه Apple TV) پشتیبانی نمی‌شود.
-
-### تنظیم از طریق ADB
-
-```bash
-adb shell "am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -a io.github.mehdieskandari.airplaytv.SET_SETTING --es key server_name --es value 'Living Room'"
-adb shell am broadcast -n io.github.mehdieskandari.airplaytv/.SettingsReceiver -a io.github.mehdieskandari.airplaytv.LIST_SETTINGS
-```
-
----
-
-## Features (English)
-
-- Screen mirroring (H.264 / H.265), AirPlay video casting and audio streaming
-- **Automatic subtitles**: picks up a same-named subtitle file next to the video on the server (`.vtt`, `.srt`, `.fa.srt`, …), including Windows-1256 encoded Persian `.srt`
-- **Subtitle settings** with live preview: 6 bundled Persian fonts, bold, size, color, outline/shadow, background, position, and instant timing offset
-- **Remote-controlled zoom** while mirroring (▲ / ▼) to crop black bars around a movie
-- **More stable picture**: the decoder input waits instead of dropping frames (no blocky artifacts), 30 fps default
-- **DLNA receiver** for Android phones (VLC, BubbleUPnP, Web Video Caster, …), with automatic subtitles
-- **Trusted devices**: approve a new device once on the TV, it connects automatically afterwards
-- **Always on**: restarts itself if Android stops it, and starts after boot and after updates
-- **Updates** through the original store, or GitHub Releases for direct installs
-- Full D-pad navigation, optional PIN
-
-## Build
-
-```bash
-git clone --recursive https://github.com/MehdiEskandari/airplay-tv.git
+```sh
+git clone --branch codex/tizen-receiver --recurse-submodules https://github.com/MehdiEskandari/airplay-tv.git
 cd airplay-tv
-./gradlew assembleDirectDebug
-# faster, one CPU type only:
-./gradlew assembleDirectDebug -Pabis=armeabi-v7a
+npm --prefix tv-web ci
+npm --prefix tv-web test
+npm --prefix tv-web run dev
 ```
 
-Store releases: `./gradlew assembleBazaarRelease assembleMyketRelease -Pabis=arm64-v8a,armeabi-v7a`. Use the existing release signing configuration in `local.properties`. See [release notes](docs/resubmission-1.5.0.md).
+آدرس `http://127.0.0.1:4179` را باز کنید. این اجرا برای بررسی رابط است؛ دریافت AirPlay به هسته و APIهای تلویزیون نیاز دارد.
 
-Requires JDK 21, Android SDK 37 and NDK 27.0.12077973. The project path must not contain spaces (an NDK limitation).
+## ساخت هسته و نصب روی تلویزیون
 
-## License
+تلویزیون باید افزونه های سوکت و پخش Samsung WebAssembly را داشته باشد. هدف اولیه، مدل های تایزن ۵.۵ / سال ۲۰۲۰ و جدیدتر است؛ سازگاری هر مدل باید بررسی شود.
 
-GPL-3.0, see [LICENSE](LICENSE).
+1. هسته را با SDK مخصوص Samsung Emscripten بسازید.
+2. در Tizen Studio یک پروفایل گواهی Samsung TV با DUID تلویزیون آزمایشی بسازید.
+3. بسته را با همان پروفایل امضا کنید و از طریق اتصال توسعه دهنده روی تلویزیون نصب کنید.
 
-Bundled fonts (SIL Open Font License 1.1, see [fonts-licenses](fonts-licenses)): [Vazirmatn](https://github.com/rastikerdar/vazirmatn), [Sahel](https://github.com/rastikerdar/sahel-font), [Shabnam](https://github.com/rastikerdar/shabnam-font), [Samim](https://github.com/rastikerdar/samim-font), [Estedad](https://github.com/aminabedi68/Estedad), [Lalezar](https://github.com/google/fonts/tree/main/ofl/lalezar).
+پس از ساخت هسته، فرمان بسته بندی از ریشه مخزن:
 
-Based on [android-airplay-server](https://github.com/jqssun/android-airplay-server) (GPL-3.0). Uses [UxPlay](https://github.com/FDH2/UxPlay), [FFmpeg](https://ffmpeg.org), [libplist](https://github.com/libimobiledevice/libplist) and [OpenSSL](https://www.openssl.org).
+```sh
+npm --prefix tv-web run package -- --profile YOUR_SAMSUNG_TV_PROFILE
+```
 
-Not affiliated with Apple Inc. AirPlay is a trademark of Apple Inc.
+خروجی در `platforms/tizen/output/` ساخته می شود. [راهنمای کامل SDK، ساخت، امضا و تست](platforms/tizen/README.md).
+
+## ساختار این برنچ
+
+| مسیر | محتوا |
+| --- | --- |
+| [tv-web/src](tv-web/src) | رابط، تم ها، زبان ها و کنترل ریموت |
+| [آداپتور تایزن](tv-web/src/platforms/tizen.js) | اتصال رابط به APIهای سامسونگ |
+| [platforms/tizen/native](platforms/tizen/native) | هسته دریافت، کشف شبکه و پخش |
+| [platforms/tizen/scripts](platforms/tizen/scripts) | ساخت هسته و بسته بندی WGT |
+| [تصاویر تایزن](docs/screenshots/tizen) | پیش نمایش های همین نسخه |
+
+## مجوز و سازنده
+
+[GPL-3.0](LICENSE). فونت وزیرمتن با مجوز [SIL Open Font License](fonts-licenses/Vazirmatn-OFL.txt) استفاده شده است.
+
+سازنده: [مهدی اسکندری](https://github.com/MehdiEskandari). این پروژه وابسته به Apple یا Samsung نیست. AirPlay نشان تجاری Apple است.
