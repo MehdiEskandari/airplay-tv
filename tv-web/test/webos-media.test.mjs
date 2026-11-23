@@ -24,3 +24,39 @@ test('a late sourceopen from a stopped player cannot feed the next session',()=>
  media.start(2);media.pushVideo(frame,0,30);previousReady();assert.equal(feed.length,0);
  ready();assert.equal(feed.length,1);media.close();
 });
+
+function audioOutput(media){
+ const scheduled=[];
+ media.audio={state:'running',currentTime:0,destination:{},
+  createBuffer:(_channels,count,rate)=>({duration:count/rate,getChannelData:()=>new Float32Array(count)}),
+  createBufferSource:()=>({connect(){},disconnect(){},stop(){},start(when){scheduled.push({when,duration:this.buffer.duration});}})};
+ return scheduled;
+}
+test('audio remains contiguous when video currentTime and packet delivery advance in bursts',()=>{
+ const {media,events}=player(),scheduled=audioOutput(media),count=480,period=count/44100;
+ media.videoFirstPts=0;media.videoPlaying=true;
+ for(let i=0;i<100;i++){
+  media.audio.currentTime=Math.floor(i/4)*4*period;
+  media.video.currentTime=Math.floor(i/3)*3*period;
+  media.pushAudio(new Uint8Array(count*4),i*period);
+ }
+ assert.equal(scheduled.length,100);assert.equal(events.some(e=>e.type==='error'),false);
+ for(let i=1;i<scheduled.length;i++)assert.ok(Math.abs(scheduled[i].when-scheduled[i-1].when-scheduled[i-1].duration)<1e-8,'PCM buffers must touch without gaps or overlaps');
+ media.close();
+});
+test('an audio underrun or a sender clock jump recovers with headroom instead of stopping the receiver',()=>{
+ const {media,events}=player(),scheduled=audioOutput(media),pcm=new Uint8Array(480*4);
+ media.pushAudio(pcm,0);media.audio.currentTime=1;media.pushAudio(pcm,480/44100);
+ assert.ok(scheduled[1]?.when>=1.1,'a late packet must re-prime the jitter buffer');
+ media.pushAudio(pcm,20);
+ assert.equal(media.run,1);assert.equal(events.some(e=>e.type==='error'),false);media.close();
+});
+test('sparse screen updates preserve the sender timeline and a backed-up video player catches up',()=>{
+ const {media,feed,events,ready,listeners}=player(),frame=new Uint8Array([0,0,1,0x65]);
+ media.pushVideo(frame,0,30);ready();listeners.playing();
+ media.pushVideo(frame,1.5,30);media.pushVideo(frame,6.5,30);
+ assert.equal(media.run,1);assert.ok(Math.abs(feed.reduce((sum,p)=>sum+p.duration,0)-6533)<2);
+ media.video.buffered={length:1,start:()=>0,end:()=>8};media.video.currentTime=0;
+ media.pushVideo(frame,6.6,30);
+ assert.ok(media.video.currentTime>7);assert.equal(events.some(e=>e.type==='error'),false);media.close();
+});

@@ -2,7 +2,7 @@
 
 [معرفی فارسی و ساخت](../../README.md)
 
-Version **0.2.0** adds a portable UxPlay receiver core, a webOS Node JavaScript service, H264 browser playback and decoded PCM audio. The Teli interface retains Persian by default, English/mixed language modes, dark/light/solid themes and remote navigation. The core targets **webOS 22+ (Node 12+)**. The earlier UI-only target of webOS 6 does not apply to this receiver service.
+Version **0.2.1** adds a portable UxPlay receiver core, a webOS Node JavaScript service, H264 browser playback and decoded PCM audio. The Teli interface retains Persian by default, English/mixed language modes, dark/light/solid themes and remote navigation. The core targets **webOS 22+ (Node 12+)**. The earlier UI-only target of webOS 6 does not apply to this receiver service.
 
 **Not a store release or a verified LG TV receiver.** No LG hardware is available. The official webOS TV 26 Simulator 1.5.0 now runs both the web app and its actual Node/WASM service. The listener belongs to the Simulator process; the separate host harness is stopped.
 
@@ -10,7 +10,7 @@ The earlier `io.github.mehdieskandari.airplaytv.webos` service name failed in th
 
 The Simulator also reports the callee's service bus ID as the message sender. The service accepts its own bus identity as well as its app identity; unrelated identities remain rejected. Simulator results therefore do not prove caller isolation on a real TV.
 
-A separate, clearly labelled **host harness** remains available for debugging. It runs the exact packaged service on macOS and replaces only the development Luna transport. It is never copied into the TV IPK. The initial live Mac session delivered video and decoded audio through this harness; final live rendering is still being checked. Actual TV workers, sockets, multicast, performance and audio output remain unverified.
+A separate, clearly labelled **host harness** remains available for debugging. It runs the exact packaged service on macOS and replaces only the development Luna transport. It is never copied into the TV IPK. The initial live Mac session delivered video and decoded audio through this harness. A later iPhone session displayed live video through the actual Simulator service (538 decoded frames observed); the user heard audio but reported crackling. Version 0.2.1 fixes reproduced timing failures, but its live iPhone audio quality still needs another listening check. Actual TV workers, sockets, multicast, performance and audio output remain unverified.
 
 | Teli dark — official Simulator | Teli light — official Simulator |
 | --- | --- |
@@ -30,8 +30,8 @@ AirPlay sender
 - No Samsung native SDK and no C/C++ Node addon are included.
 - WASM pthread workers proxy POSIX socket operations to asynchronous Node `net`/`dgram` I/O. IPv4 TCP/UDP, multicast, partial TCP reads, bounded queues and shutdown/close handling are implemented. This is a receiver socket subset, not general POSIX networking.
 - Native readiness is emitted after listeners and discovery start. A queued Luna start call never marks the receiver ready. The interface enters video mode only after the HTML video element reports `playing`.
-- Encoded video waits for MediaSource `sourceopen` before being fed to JMuxer, preserving the first SPS/PPS packet. Audio waits for an unlocked AudioContext and uses the shared media timestamps.
-- AAC LC, AAC ELD and ALAC decoding use FFmpeg in WASM; PCM is delivered at stereo 44.1 kHz. AAC LC and ALAC have generated, non-silent decoder integration fixtures. A live Mac session also delivered decoded audio packets; speaker output remains unverified.
+- Encoded video waits for MediaSource `sourceopen` before being fed to JMuxer, preserving the first SPS/PPS packet. Audio waits for an unlocked AudioContext. Version 0.2.1 schedules contiguous PCM by sample count on one audio clock, with 120 ms of headroom, bounded scheduling and underrun/clock-jump recovery. Video preserves sparse-frame timestamps and catches up when buffered latency exceeds one second instead of closing the receiver.
+- AAC LC, AAC ELD and ALAC decoding use FFmpeg in WASM; PCM is delivered at stereo 44.1 kHz. AAC LC and ALAC have generated, non-silent decoder integration fixtures. Live iPhone audio was heard in the Simulator, with crackling reported before the timing fix. Physical TV speaker output remains unverified.
 - Loopback media has a random per-service capability token and one consumer. Only the app and the receiver service's own Luna bus identities may invoke receiver methods. Sender approval defaults on; remembered identities use verified pairing keys, not client-supplied names.
 - Queues and WebSocket backpressure are bounded. Page exit/subscription cancellation stops the receiver. The service is intended to follow the foreground app lifecycle.
 - State is private under `/media/internal/com.mehdiskan.airplaytv` on the TV. The host harness uses `~/Library/Caches/AirPlayTV-webOS/`.
@@ -44,7 +44,7 @@ OpenSSL 3.4.4 is fetched from its official source and checked against a fixed SH
 
 - App: `com.mehdiskan.airplaytv`
 - Service: `com.mehdiskan.airplaytv.receiver`
-- IPK: `platforms/webos/output/com.mehdiskan.airplaytv_0.2.0_all.ipk`
+- IPK: `platforms/webos/output/com.mehdiskan.airplaytv_0.2.1_all.ipk`
 - Payload: web app, JavaScript service, WASM, pthread worker, fonts/icons and dependency licenses
 - Excluded: host harness, simulator SDK, source maps and native `.node` addons
 
@@ -74,7 +74,7 @@ This uses the production WebosMedia class inside a separate, explicitly labelled
 node platforms/webos/scripts/media-selftest.mjs /path/to/fixtures
 ```
 
-Open the printed `build/media-test` directory in the Simulator and select **Play H264 + PCM fixture**. The observed result was 240 decoded/rendered video frames, 352800 scheduled stereo PCM samples, nonzero PCM peak and a running AudioContext. This confirms the player path, not live mirroring or TV speaker output. The app and its fixtures are excluded from the TV IPK. [Test evidence](tests/RESULTS.md).
+Open the printed `build/media-test` directory in the Simulator and select **Play jittered H264 + PCM for 32 seconds**. It repeats the eight-second fixtures four times with bursty 10–90 ms delivery. The observed result in 0.2.1 was 960 decoded/rendered video frames, 1411200 scheduled stereo PCM samples, nonzero PCM peak and a running AudioContext, with zero scheduled gaps/overlaps, underruns or clock resyncs. This confirms the player path, not live mirroring or TV speaker output. The app and its fixtures are excluded from the TV IPK. [Test evidence](tests/RESULTS.md).
 
 ## Test on an LG TV
 
@@ -83,7 +83,7 @@ Prepare a webOS 22+ TV through LG's Developer Mode app. With the official CLI in
 ```sh
 ./tv-web/node_modules/.bin/ares-setup-device
 ./tv-web/node_modules/.bin/ares-novacom --device lg-tv --getkey
-./tv-web/node_modules/.bin/ares-install --device lg-tv platforms/webos/output/com.mehdiskan.airplaytv_0.2.0_all.ipk
+./tv-web/node_modules/.bin/ares-install --device lg-tv platforms/webos/output/com.mehdiskan.airplaytv_0.2.1_all.ipk
 ./tv-web/node_modules/.bin/ares-launch --device lg-tv com.mehdiskan.airplaytv
 ```
 
@@ -94,7 +94,7 @@ Use the device name configured during setup. First inspect service startup, Node
 - The portable core on macOS opened real TCP/UDP sockets, announced discovery and returned an actual binary-plist RTSP `/info` response.
 - The real WASM decoder produced non-silent PCM from generated AAC LC and ALAC packets.
 - The official Simulator now runs the packaged receiver service, including WASM workers and actual TCP/UDP listening. The host harness is stopped.
-- A Mac Screen Mirroring session delivered real video and decoded audio packets through UxPlay into the earlier host harness. End-to-end live video and audible audio remain unverified.
+- An iPhone Screen Mirroring session displayed live video through the standalone Simulator service. The user heard crackling audio; post-fix listening and real TV output remain unverified.
 - JavaScript tests cover the receiver lifecycle, async cancellation, Luna event readiness, real TCP/UDP transport, queue limits, MediaSource startup ordering, language/theme preferences and LG Back/exit handling.
 - This receiver has not run in an LG TV's jailed service environment. Node version alone is not proof that its workers/WASM, networking, resource limits or Web Audio behavior will match the host.
 - Direct AirPlay URL/HLS playback is not implemented for LG; the shared Samsung AVPlay handler is not an LG playback backend. DRM, HEVC, subtitles and old AirTunes ANNOUNCE clients are not supported by this prototype. UI guide cards describe AirPlay workflows and are not a compatibility guarantee.
