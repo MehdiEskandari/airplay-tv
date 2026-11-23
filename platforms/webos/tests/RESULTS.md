@@ -4,7 +4,7 @@ This is an experimental development build, not a certified TV release.
 
 | Check | Observed result | Boundary |
 | --- | --- | --- |
-| JavaScript lifecycle, identity, transport and media startup tests | 25 passed | Unit/integration checks; not TV execution |
+| JavaScript lifecycle, identity, transport and media startup tests | 26 passed | Unit/integration checks; not TV execution |
 | Actual WASM receiver | Real TCP/UDP, discovery and RTSP `/info` binary plist (884 bytes) | macOS host smoke test; ephemeral listener |
 | Actual WASM AAC LC decoder | 7168 stereo PCM samples; peak 3196/32768 | Generated codec fixture |
 | Actual WASM ALAC decoder | 4096 stereo PCM samples; peak 2896/32768 | Generated codec fixture |
@@ -19,7 +19,7 @@ This is an experimental development build, not a certified TV release.
 ![Teli light in the official Simulator](../../../docs/screenshots/webos/simulator-teli-light.jpg)
 ![Synthetic media player test, explicitly bypassing AirPlay](../../../docs/screenshots/webos/simulator-media-selftest.jpg)
 
-The MediaSource startup race was reproduced and fixed: the first SPS/PPS packet now waits until `sourceopen`. A regression test verifies that readiness does not follow a queued start or a received packet, and that a real `playing` event precedes video mode. The synthetic test then displayed every frame of the generated eight-second H264 pattern.
+The MediaSource startup race was reproduced and fixed: the first SPS/PPS packet now waits until `sourceopen`. A regression test verifies that readiness does not follow a queued start or a received packet, and that a real `playing` event precedes video mode. The synthetic test then displayed every frame of the generated eight-second H264 pattern. A separate regression test also reproduces late callbacks from a stopped player; session epochs now prevent those callbacks from feeding a new session.
 
 The initial long `io.github...webos` service ID failed even with LG's template, while short `com.*` template IDs and the current `com.mehdiskan.airplaytv` app/service worked. The exact SDK naming/parser restriction is not established. Its caller metadata also reports the service itself as the sender, so real TV caller isolation must be checked separately. The app and its own service identities are allowed; unrelated identities are rejected by tests.
 

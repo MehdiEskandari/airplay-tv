@@ -3,7 +3,7 @@ import JMuxer from 'jmuxer';
 export class WebosMedia {
   constructor({video,scope=window,onEvent=()=>{},createMuxer=options=>new JMuxer(options)}){
     this.video=video;this.scope=scope;this.onEvent=onEvent;this.run=0;this.sources=new Set();this.audioQueue=[];this.stats={videoPackets:0,audioPackets:0,audioSamples:0,audioPeak:0};
-    this.createMuxer=createMuxer;this.videoQueue=[];this.videoQueueBytes=0;this.mseReady=false;
+    this.createMuxer=createMuxer;this.videoQueue=[];this.videoQueueBytes=0;this.mseReady=false;this.mediaEpoch=0;
     this.activate=()=>{try{if(!this.audio)this.audio=new (scope.AudioContext||scope.webkitAudioContext)({sampleRate:44100});this.audio.resume().catch(()=>{});}catch{}};
     scope.addEventListener('pointerdown',this.activate);scope.addEventListener('keydown',this.activate);
     this.video.muted=true;this.video.autoplay=true;
@@ -29,17 +29,18 @@ export class WebosMedia {
   }
   pushVideo(data,pts,fps){
     if(!this.muxer){
+      const epoch=this.mediaEpoch,current=()=>this.run&&this.mediaEpoch===epoch;
       this.videoFirstPts=pts;this.lastVideoPts=pts;
       // A display:none video can defer MediaSource startup on TV Chromium.
       // Keep the element laid out while waiting for the real playing event.
       this.video.style.display='block';
       this.videoStartupTimer=setTimeout(()=>this.fail('Video playback startup timed out'),10000);
       try{this.muxer=this.createMuxer({node:this.video,mode:'video',fps:[30,60].includes(fps)?fps:30,flushingTime:50,maxDelay:1000,clearBuffer:true,debug:false,onReady:()=>{
-        if(!this.run||!this.muxer)return;this.mseReady=true;
+        if(!current()||!this.muxer)return;this.mseReady=true;
         const queued=this.videoQueue;this.videoQueue=[];this.videoQueueBytes=0;
         for(const packet of queued){if(!this.run||!this.muxer)return;try{this.muxer.feed(packet);}catch{this.fail('Media buffer failed');return;}}
-        if(this.run)this.video.play().catch(()=>this.fail('Video playback could not start'));
-      },onError:()=>this.fail('Media buffer failed'),onUnsupportedCodec:()=>this.fail('H.264 is unavailable')});}
+        if(current())this.video.play().catch(()=>{if(current())this.fail('Video playback could not start');});
+      },onError:()=>{if(current())this.fail('Media buffer failed');},onUnsupportedCodec:()=>{if(current())this.fail('H.264 is unavailable');}});}
       catch{this.fail('Media Source is unavailable');return;}
     }
     const delta=pts-this.lastVideoPts;if(delta>3||delta<-.5){this.fail('Video timestamp discontinuity');return;}
@@ -73,6 +74,7 @@ export class WebosMedia {
   }
   fail(message){if(!this.run||this.failed)return;this.failed=true;this.onEvent({type:'error',message,runId:this.run});this.reset();}
   reset(){
+    ++this.mediaEpoch;
     clearTimeout(this.videoStartupTimer);
     this.run=0;for(const source of this.sources){try{source.stop();}catch{}}this.sources.clear();this.audioQueue=[];
     if(this.muxer){const muxer=this.muxer;this.muxer=null;try{muxer.destroy();}catch{}}
