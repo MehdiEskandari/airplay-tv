@@ -5,9 +5,14 @@ import dgram from 'node:dgram';
 import {once} from 'node:events';
 import {Sockets} from '../../platforms/webos/service/sockets.cjs';
 import {CoreController} from '../../platforms/webos/service/controller.cjs';
+import {allowedCaller,APP,SERVICE} from '../../platforms/webos/service/identity.cjs';
 const tick=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(test){for(let i=0;i<100;i++){if(test())return;await tick(5);}throw new Error('Socket did not become ready');}
 function sockets(){const bridge=new Sockets(),heap=new Uint8Array(1024*1024);bridge.heap=()=>heap;return {bridge,heap};}
+test('receiver calls require the app or its own service bus identity',()=>{
+ for(const sender of [APP,SERVICE,APP+' 123',SERVICE+' 456'])assert.equal(allowedCaller({sender}),true);
+ for(const sender of [undefined,'',APP+'.evil',SERVICE+'.evil','com.other.app'])assert.equal(allowedCaller({sender,payload:{applicationID:APP}}),false);
+});
 test('webOS WASM transport uses real TCP and preserves partial reads',async t=>{
   const {bridge,heap}=sockets();t.after(()=>bridge.destroy());
   const server=bridge.create(2,1);assert.equal(bridge.bind(server,'127.0.0.1',0),0);await until(()=>bridge.state(server)===1);

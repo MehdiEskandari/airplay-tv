@@ -1,8 +1,8 @@
 {
-  "id": "io.github.mehdieskandari.airplaytv.webos.receiver",
+  "id": "com.mehdiskan.airplaytv.receiver",
   "description": "AirPlay TV protocol and media receiver",
   "services": [{
-    "name": "io.github.mehdieskandari.airplaytv.webos.receiver",
+    "name": "com.mehdiskan.airplaytv.receiver",
     "description": "Local AirPlay discovery, pairing and receiving"
   }]
 }

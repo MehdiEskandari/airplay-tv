@@ -6,7 +6,7 @@ const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('cry
 const {createRequire}=require('module');
 const platform=path.resolve(__dirname,'..');
 const {WebSocketServer}=require(path.resolve(platform,'../../tv-web/node_modules/ws'));
-const APP='io.github.mehdieskandari.airplaytv.webos',SERVICE=APP+'.receiver';
+const APP='com.mehdiskan.airplaytv',SERVICE=APP+'.receiver';
 const token=crypto.randomBytes(24).toString('hex'),methods=new Map(),connections=new Set();
 class SimulatorService {
   constructor(id){if(id!==SERVICE)throw new Error('Unexpected service ID');}

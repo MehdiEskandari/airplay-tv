@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),path=require('path'),os=require('os'),http=require('http'),crypto=require('crypto');
 const {Sockets}=require('./sockets.cjs');
-const APP='io.github.mehdieskandari.airplaytv.webos';
+const {APP}=require('./identity.cjs');
 function address(){
   for(const entries of Object.values(os.networkInterfaces()))for(const entry of entries||[])
     if((entry.family==='IPv4'||entry.family===4)&&!entry.internal&&!entry.address.startsWith('169.254.'))return entry.address;

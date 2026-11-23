@@ -1,5 +1,5 @@
 import {WebosMedia} from '../webos-media.js';
-const service='luna://io.github.mehdieskandari.airplaytv.webos.receiver/';
+const service='luna://com.mehdiskan.airplaytv.receiver/';
 export function webosPlatform(scope=window,{createMedia=options=>new WebosMedia(options)}={}){
   const isDevice=typeof scope.PalmSystem!=='undefined',available=isDevice&&typeof scope.PalmServiceBridge==='function';
   let sink=()=>{},media=null,subscription=null,info=null,currentRun=0,loadEpoch=0;

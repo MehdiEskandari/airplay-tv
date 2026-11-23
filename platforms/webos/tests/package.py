@@ -17,7 +17,7 @@ while offset<len(data):
 assert payload is not None, 'Missing IPK payload'
 with tarfile.open(fileobj=io.BytesIO(payload),mode='r:*') as archive:
     files={member.name:archive.extractfile(member).read() for member in archive.getmembers() if member.isfile()}
-prefix='usr/palm/applications/io.github.mehdieskandari.airplaytv.webos/'
+prefix='usr/palm/applications/com.mehdiskan.airplaytv/'
 def packaged(name):
     matches=[data for path,data in files.items() if path.lstrip('./')==prefix+name]
     assert len(matches)==1, name

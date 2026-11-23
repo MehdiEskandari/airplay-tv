@@ -1,20 +1,16 @@
 'use strict';
 const {WebSocketServer}=require('ws');
-const {CoreController,APP}=require('./controller.cjs');
-const SERVICE=APP+'.receiver';
+const {CoreController}=require('./controller.cjs');
+const {SERVICE,allowedCaller}=require('./identity.cjs');
 {
   const Service=require('webos-service');
   const service=new Service(SERVICE),subscribers=new Map();
   const controller=new CoreController({WebSocketServer,onEvent:event=>{
     for(const message of subscribers.values())message.respond({returnValue:true,event});
   }});
-  const allowed=message=>{
-    const caller=message.applicationID||message.sender;
-    return typeof caller==='string'&&(caller===APP||caller.startsWith(APP+' '));
-  };
   function method(name,callback,cancel){
     service.register(name,message=>{
-      if(!allowed(message)){message.respond({returnValue:false,errorText:'Caller is not the AirPlay TV app'});return;}
+      if(!allowedCaller(message)){message.respond({returnValue:false,errorText:'Caller is not the AirPlay TV app'});return;}
       Promise.resolve().then(()=>callback(message)).then(result=>{
         if(result!==undefined)message.respond({returnValue:true,...result});
       }).catch(error=>message.respond({returnValue:false,errorText:error.message}));
