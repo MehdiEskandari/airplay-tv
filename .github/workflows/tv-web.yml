@@ -1,11 +1,11 @@
-name: TV web interface
+name: webOS interface preview
 on:
   push:
-    paths: ['tv-web/**', 'platforms/tizen/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
+    paths: ['tv-web/**', 'platforms/webos/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
   pull_request:
-    paths: ['tv-web/**', 'platforms/tizen/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
+    paths: ['tv-web/**', 'platforms/webos/**', 'app/src/main/res/**', '.github/workflows/tv-web.yml']
 jobs:
-  web-and-discovery:
+  web-and-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +16,12 @@ jobs:
           cache-dependency-path: tv-web/package-lock.json
       - run: npm ci
         working-directory: tv-web
-      - run: npm test && npm run build
+      - run: npm test
         working-directory: tv-web
-      - run: python3 platforms/tizen/tests/discovery.py
+      - run: npm run package:webos
+        working-directory: tv-web
+      - run: python3 platforms/webos/tests/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: airplay-tv-webos-interface-preview
+          path: platforms/webos/output/*.ipk

@@ -10,10 +10,14 @@ export function nextInDirection(current,items,direction){
     if(candidate<score){score=candidate;best=item;}
   }return best;
 }
+export function remoteKey(event){
+  const mapped={37:'ArrowLeft',38:'ArrowUp',39:'ArrowRight',40:'ArrowDown',13:'Enter',461:'Escape',10009:'Escape',415:'MediaPlay',19:'MediaPause',10252:'MediaPlayPause',413:'MediaStop'}[event.keyCode];
+  return event.keyCode===461||event.keyCode===10009?mapped:event.key&&event.key!=='Unidentified'?event.key:mapped;
+}
 export function installRemote({onBack,onMedia}){
   try{window.tizen.tvinputdevice.registerKeyBatch(['MediaPlayPause','MediaPlay','MediaPause','MediaStop']);}catch{}
   document.addEventListener('keydown',event=>{
-    const key=event.key||({37:'ArrowLeft',38:'ArrowUp',39:'ArrowRight',40:'ArrowDown',13:'Enter',10009:'Escape',415:'MediaPlay',19:'MediaPause',10252:'MediaPlayPause',413:'MediaStop'}[event.keyCode]);
+    const key=remoteKey(event);
     if(key==='Escape'||key==='Backspace'||event.keyCode===10009){if(document.activeElement?.tagName==='INPUT'&&key==='Backspace')return;event.preventDefault();onBack();return;}
     if(key?.startsWith('Media')){event.preventDefault();onMedia(key);return;}
     const direction={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'}[key];if(!direction)return;

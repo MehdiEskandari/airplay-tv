@@ -2,13 +2,13 @@ import {Preferences} from './preferences.js';
 import {translator,isRtl} from './i18n.js';
 import {icon} from './icons.js';
 import {ReceiverEngine} from './engine.js';
-import {tizenPlatform} from './platforms/tizen.js';
+import {createPlatform} from '#airplay-platform';
 import {installRemote} from './remote.js';
 import {HlsPlayer} from './hls.js';
 
 let storage;try{storage=window.localStorage;}catch{storage={getItem(){throw new Error('storageUnavailable');},setItem(){throw new Error('storageUnavailable');}};}
 const prefs=new Preferences(storage);
-const platform=tizenPlatform();
+const platform=createPlatform();
 const engine=new ReceiverEngine({...platform,settings:prefs});
 const root=document.getElementById('app'),modalRoot=document.getElementById('modal-root');
 const video=document.getElementById('receiver-video');
@@ -40,9 +40,9 @@ function onboarding(){return '<section class="language-screen"><div class="langu
 function stateLabel(){return {listening:'ready_for_connection',connected:'session',starting:'starting',stopped:'server_stopped',unsupported:'server_stopped',error:'error_starting_server'}[engine.status];}
 function home(){
   const active=['starting','listening','connected'].includes(engine.status);
-  const message=!platform.isTizen?t('unsupported'):engine.status==='stopped'?t('startRequired'):engine.status==='error'?t('engineUnavailable'):'';
+  const message=platform.unavailableKey?t(platform.unavailableKey):!platform.isDevice?t('unsupported'):engine.status==='stopped'?t('startRequired'):engine.status==='error'?t('engineUnavailable'):'';
   const guides=[['mirror','home_mirror_title','home_mirror_desc'],['airplay','home_video_title','home_video_desc'],['wifi','networkGuideTitle','networkGuideDescription']];
-  return '<section class="screen home" aria-label="'+text('tab_overview')+'"><div class="receiver-card"><div><div class="receiver-label">'+text('home_receiver')+'</div><div class="receiver-name" dir="auto">'+escape(prefs.get('serverName'))+'</div><div class="status '+engine.status+'">'+text(stateLabel())+'</div>'+(message?'<div class="status-message">'+escape(message)+'</div>':'')+'</div>'+button('toggle-receiver',icon(active?'stop':'play')+text(active?'btn_stop':'btn_start'),'action')+'</div><div class="guides">'+guides.map(([glyph,title,description],i)=>'<article class="guide"><div class="guide-top">'+icon(glyph)+'<span class="step">0'+(i+1)+'</span></div><h2>'+text(title)+'</h2><p>'+text(description,prefs.get('serverName'))+'</p></article>').join('')+'</div><p class="network-hint">'+icon('wifi')+text('networkHint')+'</p></section>';
+  return '<section class="screen home" aria-label="'+text('tab_overview')+'"><div class="receiver-card"><div><div class="receiver-label">'+text('home_receiver')+'</div><div class="receiver-name" dir="auto">'+escape(prefs.get('serverName'))+'</div><div class="status '+engine.status+'">'+text(stateLabel())+'</div>'+(message?'<div class="status-message">'+escape(message)+'</div>':'')+'</div>'+button('toggle-receiver',icon(active?'stop':'play')+text(platform.receiverImplemented===false?'receiverPending':active?'btn_stop':'btn_start'),'action',platform.receiverImplemented===false?'disabled':'')+'</div><div class="guides">'+guides.map(([glyph,title,description],i)=>'<article class="guide"><div class="guide-top">'+icon(glyph)+'<span class="step">0'+(i+1)+'</span></div><h2>'+text(title)+'</h2><p>'+text(description,prefs.get('serverName'))+'</p></article>').join('')+'</div><p class="network-hint">'+icon('wifi')+text('networkHint')+'</p></section>';
 }
 function setting(key,title,description,value,extra=''){
   return button(key,'<span class="setting-body"><strong>'+text(title)+'</strong>'+(description?'<small>'+text(description)+'</small>':'')+'</span>'+(value===null?'':typeof value==='boolean'?'<span class="switch"></span>':'<span class="value" dir="auto">'+escape(value)+'</span>'),'setting',extra+(typeof value==='boolean'?' role="switch" aria-checked="'+value+'"':''));
@@ -52,19 +52,19 @@ function choices(pref,items){return '<div class="choices" role="radiogroup">'+it
 function settings(){
   return '<section class="screen"><div class="settings">'+section('section_language')+setting('choose-language',{fa:'فارسی',en:'English',mul:'فارسی + English'}[prefs.get('language')],'language_description',null)+
     section('section_appearance')+'<div class="setting"><span class="setting-body"><strong>'+text('setting_theme')+'</strong><small>'+text('setting_theme_desc')+'</small></span></div>'+choices('appearance',themes)+
-    section('section_server')+setting('edit-name','setting_server_name',null,prefs.get('serverName'))+setting('auto-start','setting_auto_start','setting_auto_start_desc',prefs.get('autoStart'))+
+    (platform.receiverImplemented===false?'<p class="setting-note">'+text('webosCorePending')+'</p>':section('section_server')+setting('edit-name','setting_server_name',null,prefs.get('serverName'))+setting('auto-start','setting_auto_start','setting_auto_start_desc',prefs.get('autoStart'))+
     section('section_display')+
     section('setting_resolution')+choices('resolution',[['1280x720','1280 × 720'],['1920x1080','1920 × 1080']])+
     section('setting_max_fps')+choices('maxFps',[[30,'30 fps'],[60,'60 fps']])+
     section('section_devices')+setting('approve-devices','approve_devices','approveHint',prefs.get('approveDevices'))+
     (prefs.get('trusted').length?prefs.get('trusted').map((d,i)=>setting('forget-'+i,'device',null,d.name)).join(''):'<p class="setting-note">'+text('trustEmpty')+'</p>')+
-    '<p class="setting-note">'+text('privacy')+'</p>'+section('section_creator')+'<div class="creator"><img src="assets/creator.jpg" alt="'+text('creator_avatar')+'"><div><strong>'+text('creator_name')+'</strong><p>'+text('creator_role')+'</p></div></div></div></section>';
+    '<p class="setting-note">'+text('privacy')+'</p>')+section('section_creator')+'<div class="creator"><img src="assets/creator.jpg" alt="'+text('creator_avatar')+'"><div><strong>'+text('creator_name')+'</strong><p>'+text('creator_role')+'</p></div></div></div></section>';
 }
 function logScreen(){return '<section class="screen logs"><div class="logs-toolbar"><h1>'+text('tab_logs')+'</h1>'+button('clear-logs',text('clearLogs'),'quiet-button')+'</div><div class="log-list">'+(logs.length?logs.map(item=>'<div class="log-row '+item.level+'">'+escape(item.time+' '+item.message)+'</div>').join(''):'<div class="log-empty">'+text('noLogs')+'</div>')+'</div></section>';}
 function render(){
   applyAppearance();
   if(!prefs.get('languageSelected')){preserveRender(onboarding());return;}
-  preserveRender('<div class="shell"><header class="topbar"><nav class="tabs" role="tablist">'+[['home','tab_overview'],['logs','tab_logs'],['settings','tab_settings']].map(([id,label])=>button('tab-'+id,text(label),'tab','role="tab" aria-selected="'+(tab===id)+'" data-tab="'+id+'"')).join('')+'</nav></header>'+({home,settings,logs:logScreen}[tab])()+(!platform.isTizen?'<span class="preview-label">'+text('preview')+'</span>':'')+'</div>');
+  preserveRender('<div class="shell"><header class="topbar"><nav class="tabs" role="tablist">'+[['home','tab_overview'],['logs','tab_logs'],['settings','tab_settings']].map(([id,label])=>button('tab-'+id,text(label),'tab','role="tab" aria-selected="'+(tab===id)+'" data-tab="'+id+'"')).join('')+'</nav></header>'+({home,settings,logs:logScreen}[tab])()+(!platform.available?'<span class="preview-label">'+text(platform.previewKey||'preview')+'</span>':'')+'</div>');
 }
 function closeModal(){const restore=modal?.restore;modal=null;modalRoot.innerHTML='';if(restore)focus(restore);}
 function showModal(kind,data={}){
@@ -123,7 +123,7 @@ document.addEventListener('click',event=>{
   if(key==='auto-start'||key==='auto-fullscreen'||key==='approve-devices'){const pref={'auto-start':'autoStart','auto-fullscreen':'autoFullscreen','approve-devices':'approveDevices'}[key];prefs.set(pref,!prefs.get(pref));render();if(pref==='approveDevices')toast(t('restart'));return;}
   if(key?.startsWith('forget-')){const index=Number(key.slice(7));prefs.set('trusted',prefs.get('trusted').filter((_,i)=>i!==index));render();toast(t('restart'));return;}
   if(key?.startsWith('approve-')){answer({'approve-deny':0,'approve-once':1,'approve-always':2}[key]);return;}
-  if(key==='exit-app'){engine.stop();closeModal();if(platform.isTizen)platform.exit();}
+  if(key==='exit-app'){engine.stop();closeModal();if(platform.isDevice)platform.exit();}
 });
 document.addEventListener('input',event=>{if(event.target.id==='receiver-name')event.target.setCustomValidity('');});
 document.addEventListener('submit',event=>{

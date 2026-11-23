@@ -1,13 +1,19 @@
 {
-  "name": "airplay-tv-tizen",
-  "version": "1.5.0",
+  "name": "airplay-tv-webos",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "dev": "node scripts/dev.mjs",
-    "package": "node ../platforms/tizen/scripts/package.mjs",
-    "test": "node --test test/*.test.mjs"
+    "build": "node scripts/build.mjs --webos",
+    "dev": "node scripts/dev.mjs --webos",
+    "package": "node ../platforms/webos/scripts/package.mjs",
+    "test": "node --test test/*.test.mjs",
+    "build:webos": "node scripts/build.mjs --webos",
+    "dev:webos": "node scripts/dev.mjs --webos",
+    "package:webos": "node ../platforms/webos/scripts/package.mjs"
   },
-  "devDependencies": { "esbuild": "0.28.2" }
+  "devDependencies": {
+    "@webos-tools/cli": "3.2.6",
+    "esbuild": "0.28.2"
+  }
 }

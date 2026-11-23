@@ -17,6 +17,8 @@
 /platforms/tizen/.cache/
 /platforms/tizen/build/
 /platforms/tizen/output/
+/platforms/webos/build/
+/platforms/webos/output/
 *.p12
 *.pfx
 __pycache__/
