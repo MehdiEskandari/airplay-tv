@@ -13,10 +13,11 @@
 
 ![صفحه اصلی / Home](docs/screenshots/1.5.0/teli-dark-tv.png)
 
-| | |
-|---|---|
-| ![تنظیمات / Settings](docs/screenshots/settings.png) | ![تنظیمات زیرنویس / Subtitle settings](docs/screenshots/subtitles.png) |
-| ![تأیید دستگاه جدید / New device approval](docs/screenshots/approval.png) | ![گوشی اندرویدی / Android phone](docs/screenshots/phone.png) |
+| تلی روشن / Teli light | تنظیمات تلویزیون / TV settings |
+| --- | --- |
+| ![صفحه اصلی تلویزیون با تم تلی روشن](docs/screenshots/1.5.0/teli-light-tv.png) | ![تنظیمات تلویزیون با تم تلی تیره](docs/screenshots/1.5.0/settings-fa-tv.png) |
+
+تصاویر بالا از نسخه ۱.۵.۰ روی Android TV هستند.
 
 ---
 
